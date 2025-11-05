@@ -10,7 +10,7 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export default function SearchBar({ value, onChange, onSubmit, placeholder = "Zoek op titel of auteur" }: SearchBarProps) {
+export default function SearchBar({ value, onChange, onSubmit, placeholder = "Of zoek op titel en/of auteur" }: SearchBarProps) {
   const [localValue, setLocalValue] = useState(value);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
