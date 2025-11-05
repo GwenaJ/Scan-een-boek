@@ -76,7 +76,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       />
       
       <p className="text-xs text-center text-muted-foreground">
-        Scan met USB barcode scanner of gebruik de camera knop
+        Houd de barcode van het boek (op de achterkant) voor de scanner die zich onder dit scherm bevindt
       </p>
     </Card>
   );
