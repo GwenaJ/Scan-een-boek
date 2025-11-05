@@ -33,7 +33,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <ScanLine className="w-5 h-5 text-primary" />
           </div>
-          Scan hier de barcode
+          Scan de barcode onder dit scher 
         </h2>
         <Button 
           variant="outline" 
