@@ -1,7 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ScanLine, Camera } from "lucide-react";
+import { Camera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import barcodeIcon from "@assets/barcode-icon_1762373336730.png";
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void;

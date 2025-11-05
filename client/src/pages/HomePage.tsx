@@ -36,8 +36,7 @@ export default function HomePage() {
           <div className="text-sm text-muted-foreground">NL</div>
         </div>
       </header>
-
-      <main className="flex-1 flex flex-col items-center justify-center p-4 pb-8">
+      <main className="flex-1 flex flex-col items-center justify-center p-4 pb-8 text-[#E30613]">
         <div className="max-w-2xl w-full space-y-6">
           <div className="text-center space-y-2 mb-8">
             <p className="text-muted-foreground">
