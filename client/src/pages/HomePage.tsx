@@ -47,17 +47,6 @@ export default function HomePage() {
 
           <BarcodeScanner onScan={handleBarcodeScan} />
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                of zoek hieronder
-              </span>
-            </div>
-          </div>
-
           <div>
             <label className="block text-sm font-medium mb-2">
               Zoek op titel of auteur
