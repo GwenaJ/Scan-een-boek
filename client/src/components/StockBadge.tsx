@@ -28,7 +28,7 @@ export default function StockBadge({ stock, location, variant = "default" }: Sto
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex items-center justify-between gap-3 flex-wrap">
       <Badge 
         variant={isInStock ? "default" : "destructive"}
         className="inline-flex items-center gap-2"
