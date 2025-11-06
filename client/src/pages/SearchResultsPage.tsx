@@ -30,7 +30,8 @@ export default function SearchResultsPage() {
       stock: 2,
       location: 'Fictie - Engelstalig',
       coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780141395876',
-      boekpaginaUrl: 'https://libris.nl/zoek?q=9780141395876'
+      boekpaginaUrl: 'https://libris.nl/zoek?q=9780141395876',
+      releaseDate: '2014-03-27'
     },
     {
       isbn: '9780141188621',
@@ -42,7 +43,8 @@ export default function SearchResultsPage() {
       publisher: 'Penguin Classics',
       stock: 2,
       location: 'Fictie - Engelstalig',
-      coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780141188621'
+      coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780141188621',
+      releaseDate: '2007-03-29'
     },
     {
       isbn: '9780099272779',
@@ -54,7 +56,8 @@ export default function SearchResultsPage() {
       publisher: 'Vintage',
       stock: 0,
       location: 'Fictie - Engelstalig',
-      coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780099272779'
+      coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780099272779',
+      releaseDate: '1999-02-04'
     }
   ];
 
@@ -70,7 +73,8 @@ export default function SearchResultsPage() {
       publisher: 'Penguin Classics',
       stock: 2,
       location: 'Fictie - Engelstalig',
-      coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780141188621'
+      coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780141188621',
+      releaseDate: '2007-03-29'
     },
     {
       isbn: '9780141188622',
@@ -81,7 +85,8 @@ export default function SearchResultsPage() {
       language: 'ENG',
       publisher: 'Penguin Classics',
       stock: 0,
-      location: 'Fictie - Engelstalig'
+      location: 'Fictie - Engelstalig',
+      releaseDate: '2005-10-15'
     }
   ];
 

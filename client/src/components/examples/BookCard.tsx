@@ -11,7 +11,8 @@ export default function BookCardExample() {
     publisher: 'Penguin Classics',
     stock: 2,
     location: 'Fictie - Engelstalig',
-    coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780141395876'
+    coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780141395876',
+    releaseDate: '2014-03-27'
   };
 
   return (
