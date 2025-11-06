@@ -42,14 +42,25 @@ export default function BookCard({ book, onClick }: BookCardProps) {
       </div>
       
       <div className="flex-1 flex flex-col gap-1 min-w-0">
-        <div>
-          <h3 className="font-bold text-lg leading-tight" data-testid="text-title">
-            {book.title}
-          </h3>
-          <p className="text-base text-muted-foreground" data-testid="text-author">
-            {book.author}
-          </p>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-lg leading-tight" data-testid="text-title">
+              {book.title}
+            </h3>
+          </div>
+          <Button 
+            onClick={onClick}
+            variant="default"
+            size="sm"
+            data-testid="button-select-book"
+          >
+            Selecteer
+          </Button>
         </div>
+        
+        <p className="text-base text-muted-foreground" data-testid="text-author">
+          {book.author}
+        </p>
         
         <div className="flex items-baseline justify-between gap-2 flex-wrap mt-1">
           <div className="text-sm text-muted-foreground">
@@ -69,18 +80,6 @@ export default function BookCard({ book, onClick }: BookCardProps) {
         
         <div className="mt-2">
           <StockBadge stock={book.stock} location={book.location} />
-        </div>
-
-        <div className="mt-3">
-          <Button 
-            onClick={onClick}
-            variant="default"
-            className="w-full"
-            data-testid="button-select-book"
-          >
-            Selecteer
-            <ChevronRight className="ml-2 w-4 h-4" />
-          </Button>
         </div>
       </div>
     </Card>
