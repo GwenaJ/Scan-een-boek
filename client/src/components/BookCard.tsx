@@ -14,6 +14,7 @@ export interface Book {
   stock: number;
   location?: string;
   coverUrl?: string;
+  releaseDate?: string;
 }
 
 interface BookCardProps {
@@ -74,7 +75,7 @@ export default function BookCard({ book, onClick }: BookCardProps) {
         </div>
         
         <div className="text-sm text-muted-foreground">
-          <div>ISBN: {book.isbn}</div>
+          {book.releaseDate && <div>Verschenen: {book.releaseDate}</div>}
           {book.publisher && <div>{book.publisher}</div>}
         </div>
         
