@@ -40,7 +40,7 @@ export default function HomePage() {
         <div className="max-w-2xl w-full space-y-6">
           <div className="text-center space-y-2 mb-8">
             <p className="text-muted-foreground">
-              Scan de barcode hieronder, of zoek op titel of auteur.
+              Scan de barcode hieronder, of zoek op titel en/of auteur.
             </p>
           </div>
 
@@ -48,7 +48,7 @@ export default function HomePage() {
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              Zoek op titel of auteur
+              of oek op titel en/of auteur
             </label>
             <SearchBar
               value={searchQuery}
