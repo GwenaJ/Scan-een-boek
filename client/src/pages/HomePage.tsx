@@ -48,7 +48,7 @@ export default function HomePage() {
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              of oek op titel en/of auteur
+              Of zoek op titel en/of auteur
             </label>
             <SearchBar
               value={searchQuery}
