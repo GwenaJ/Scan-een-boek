@@ -31,12 +31,12 @@ export default function StockBadge({ stock, location, variant = "default" }: Sto
     <div className="flex items-center justify-between gap-3 flex-wrap">
       <Badge 
         variant={isInStock ? "default" : "destructive"}
-        className="inline-flex items-center gap-2"
+        className={`inline-flex items-center gap-2 ${isInStock ? 'bg-green-600 hover:bg-green-700 border-green-700' : ''}`}
         data-testid={`badge-stock-${isInStock ? 'available' : 'unavailable'}`}
       >
         <div className={`w-2 h-2 rounded-full bg-white`} />
         <span>
-          {isInStock ? 'Op voorraad in de winkel' : 'Niet op voorraad'}
+          {isInStock ? `Op voorraad: ${stock}` : 'Niet op voorraad'}
         </span>
       </Badge>
       {isInStock && location && (
