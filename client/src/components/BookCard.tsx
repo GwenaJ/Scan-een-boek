@@ -27,7 +27,7 @@ export default function BookCard({ book, onClick }: BookCardProps) {
       className="flex gap-4 p-4"
       data-testid={`card-book-${book.isbn}`}
     >
-      <div className="w-24 h-36 flex-shrink-0 bg-muted rounded-md overflow-hidden">
+      <div className="w-24 flex-shrink-0 bg-muted rounded-md overflow-hidden self-stretch">
         {book.coverUrl ? (
           <img 
             src={book.coverUrl} 
