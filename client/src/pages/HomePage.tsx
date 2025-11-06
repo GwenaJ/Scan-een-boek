@@ -33,10 +33,9 @@ export default function HomePage() {
             </div>
             <h1 className="text-2xl font-bold">Scan-een-Boek</h1>
           </div>
-          <div className="text-sm text-muted-foreground">NL</div>
+          <div className="text-sm text-muted-foreground">ENG</div>
         </div>
       </header>
-
       <main className="flex-1 flex flex-col items-center justify-center p-4 pb-8">
         <div className="max-w-2xl w-full space-y-6">
           <div className="text-center space-y-2 mb-8">
