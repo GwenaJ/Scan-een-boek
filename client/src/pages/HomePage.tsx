@@ -40,7 +40,7 @@ export default function HomePage() {
         <div className="max-w-2xl w-full space-y-6">
           <div className="text-center space-y-2 mb-8">
             <p className="text-muted-foreground">
-              Scan de barcode hieronder, of zoek op titel en/of auteur.
+              Scan de barcode, of zoek op titel en/of auteur.
             </p>
           </div>
 
