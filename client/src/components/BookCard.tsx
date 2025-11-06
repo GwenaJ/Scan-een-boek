@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import StockBadge from "./StockBadge";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ChevronRight } from "lucide-react";
 
 export interface Book {
   isbn: string;
@@ -23,8 +24,7 @@ interface BookCardProps {
 export default function BookCard({ book, onClick }: BookCardProps) {
   return (
     <Card 
-      className="flex gap-4 p-4 hover-elevate active-elevate-2 cursor-pointer"
-      onClick={onClick}
+      className="flex gap-4 p-4"
       data-testid={`card-book-${book.isbn}`}
     >
       <div className="w-24 h-36 flex-shrink-0 bg-muted rounded-md overflow-hidden">
@@ -69,6 +69,18 @@ export default function BookCard({ book, onClick }: BookCardProps) {
         
         <div className="mt-2">
           <StockBadge stock={book.stock} location={book.location} />
+        </div>
+
+        <div className="mt-3">
+          <Button 
+            onClick={onClick}
+            variant="default"
+            className="w-full"
+            data-testid="button-select-book"
+          >
+            Selecteer
+            <ChevronRight className="ml-2 w-4 h-4" />
+          </Button>
         </div>
       </div>
     </Card>
