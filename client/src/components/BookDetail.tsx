@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import StockBadge from "./StockBadge";
 import { BookOpen, ExternalLink } from "lucide-react";
-import type { Book } from "./BookCard";
+import type { Book } from "@shared/schema";
 import { useEffect, useRef } from "react";
 
 interface BookDetailProps {
