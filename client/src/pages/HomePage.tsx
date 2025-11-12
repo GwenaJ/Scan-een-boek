@@ -57,7 +57,7 @@ export default function HomePage() {
               value={searchQuery}
               onChange={setSearchQuery}
               onSubmit={handleSearchSubmit}
-              placeholder="Bijvoorbeeld: The Prince - Machiavelli"
+              placeholder="Bijvoorbeeld: On the Road - Jack Kerouac"
             />
           </div>
         </div>
