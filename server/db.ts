@@ -6,6 +6,9 @@ import { readFileSync, existsSync } from "fs";
 // Get database URL from environment or /tmp/replitdb (for Replit deployments)
 let databaseUrl = process.env.DATABASE_URL;
 
+console.log('Environment:', process.env.NODE_ENV || 'production');
+console.log('DATABASE_URL exists:', !!databaseUrl);
+
 if (!databaseUrl && existsSync('/tmp/replitdb')) {
   try {
     databaseUrl = readFileSync('/tmp/replitdb', 'utf-8').trim();
@@ -28,6 +31,11 @@ export const pool = new Pool({
   ssl: databaseUrl.includes('sslmode=require') ? { rejectUnauthorized: false } : false
 });
 
+// Test the connection and log any errors
+pool.on('error', (err) => {
+  console.error('Unexpected database pool error:', err);
+});
+
 export const db = drizzle(pool, { schema });
 
-console.log(`Database connected (${process.env.NODE_ENV || 'production'})`);
+console.log(`Database pool created successfully`);

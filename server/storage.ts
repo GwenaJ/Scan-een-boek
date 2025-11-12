@@ -17,6 +17,9 @@ export interface IStorage {
   searchBooksByTitleAuthor(title?: string, author?: string): Promise<Book[]>;
   createBook(book: InsertBook): Promise<Book>;
   createBooks(books: InsertBook[]): Promise<void>;
+  
+  // Health check
+  testConnection(): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -71,6 +74,10 @@ export class MemStorage implements IStorage {
     for (const book of books) {
       await this.createBook(book);
     }
+  }
+
+  async testConnection(): Promise<boolean> {
+    return true; // MemStorage always works
   }
 }
 
@@ -137,6 +144,17 @@ export class DbStorage implements IStorage {
     for (let i = 0; i < booksToInsert.length; i += batchSize) {
       const batch = booksToInsert.slice(i, i + batchSize);
       await db.insert(books).values(batch);
+    }
+  }
+
+  async testConnection(): Promise<boolean> {
+    try {
+      // Try to execute a simple query
+      await db.execute(sql`SELECT 1`);
+      return true;
+    } catch (error) {
+      console.error("Database connection test failed:", error);
+      return false;
     }
   }
 }
