@@ -6,7 +6,7 @@ import type { Book } from "@shared/schema";
 import { useEffect, useRef } from "react";
 
 interface BookDetailProps {
-  book: Book & { boekpaginaUrl?: string };
+  book: Book;
 }
 
 export default function BookDetail({ book }: BookDetailProps) {
