@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ScanLine, Camera, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from '@zxing/library';
@@ -11,10 +12,19 @@ interface BarcodeScannerProps {
 export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
   const [inputValue, setInputValue] = useState('');
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [scanStatus, setScanStatus] = useState<string>('');
+  const [scanAttempts, setScanAttempts] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
+  const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const delayedStopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const errorCountRef = useRef(0);
+  const isCameraActiveRef = useRef(false);
+  const isInitializingRef = useRef(false);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -22,11 +32,32 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
 
   useEffect(() => {
     return () => {
-      if (codeReaderRef.current) {
-        codeReaderRef.current.reset();
-      }
+      cleanupCamera();
     };
   }, []);
+
+  const cleanupCamera = () => {
+    if (scanTimeoutRef.current) {
+      clearTimeout(scanTimeoutRef.current);
+      scanTimeoutRef.current = null;
+    }
+    if (delayedStopTimeoutRef.current) {
+      clearTimeout(delayedStopTimeoutRef.current);
+      delayedStopTimeoutRef.current = null;
+    }
+    if (pollingTimeoutRef.current) {
+      clearTimeout(pollingTimeoutRef.current);
+      pollingTimeoutRef.current = null;
+    }
+    if (codeReaderRef.current) {
+      try {
+        codeReaderRef.current.reset();
+      } catch (err) {
+        console.warn('Error resetting code reader:', err);
+      }
+      codeReaderRef.current = null;
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputValue.trim()) {
@@ -36,7 +67,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
   };
 
   const handleCameraClick = async () => {
-    if (isCameraActive) {
+    if (isCameraActive || isInitializing) {
       stopCamera();
     } else {
       await startCamera();
@@ -45,47 +76,161 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
 
   const startCamera = async () => {
     try {
+      console.info('[BarcodeScanner] Starting camera initialization...');
+      setIsInitializing(true);
+      isInitializingRef.current = true;
       setCameraError(null);
+      setScanStatus('Camera wordt gestart...');
+      setScanAttempts(0);
+      errorCountRef.current = 0;
+      
       const codeReader = new BrowserMultiFormatReader();
       codeReaderRef.current = codeReader;
 
+      // List available video devices
+      console.info('[BarcodeScanner] Enumerating video devices...');
       const videoInputDevices = await codeReader.listVideoInputDevices();
       
+      // Abort guard: check if user stopped camera during async operation
+      if (!isInitializingRef.current) {
+        console.info('[BarcodeScanner] Camera initialization aborted by user');
+        codeReader.reset();
+        return;
+      }
+      
+      console.info(`[BarcodeScanner] Found ${videoInputDevices.length} video device(s)`);
+      
       if (videoInputDevices.length === 0) {
-        setCameraError('Geen camera gevonden');
+        throw new Error('Geen camera gevonden op dit apparaat');
+      }
+
+      // Log device info
+      videoInputDevices.forEach((device, index) => {
+        console.info(`[BarcodeScanner] Device ${index}: ${device.label || 'Unnamed'} (${device.deviceId})`);
+      });
+
+      const selectedDeviceId = videoInputDevices[0].deviceId;
+      console.info(`[BarcodeScanner] Selected device: ${selectedDeviceId}`);
+
+      // Verify video element exists
+      if (!videoRef.current) {
+        throw new Error('Video element niet gevonden');
+      }
+
+      // Final abort guard before starting decoder
+      if (!isInitializingRef.current) {
+        console.info('[BarcodeScanner] Camera initialization aborted before decoder start');
+        codeReader.reset();
         return;
       }
 
-      const selectedDeviceId = videoInputDevices[0].deviceId;
+      setScanStatus('Camera wordt geactiveerd...');
 
+      // Re-assign to ref so stopCamera can always access it
+      codeReaderRef.current = codeReader;
+
+      // Start decoding with enhanced error handling
+      // Note: Don't await this - it runs continuously in background
+      console.info('[BarcodeScanner] Starting decode from video device...');
       codeReader.decodeFromVideoDevice(
         selectedDeviceId,
-        videoRef.current!,
+        videoRef.current,
         (result, error) => {
           if (result) {
             const barcode = result.getText();
-            console.log('Barcode gescand:', barcode);
+            console.info(`[BarcodeScanner] ✓ Barcode successfully scanned: ${barcode}`);
+            setScanStatus(`Barcode gevonden: ${barcode}`);
             onScan(barcode);
             stopCamera();
+          } else if (error) {
+            // Increment error count but don't spam logs for common "not found" errors
+            errorCountRef.current++;
+            
+            // Only log every 20th error to avoid spam
+            if (errorCountRef.current % 20 === 0) {
+              console.debug(`[BarcodeScanner] Scan attempt ${errorCountRef.current}: ${error.message}`);
+            }
+            
+            // Update attempts counter for user feedback
+            setScanAttempts(prev => prev + 1);
           }
         }
-      );
+      ).catch((err) => {
+        // Handle camera permission denied or device initialization failures
+        const errorMessage = err instanceof Error ? err.message : 'Camera initialisatie mislukt';
+        console.error('[BarcodeScanner] decodeFromVideoDevice failed:', err);
+        setCameraError(errorMessage);
+        setScanStatus('');
+        setIsCameraActive(false);
+        setIsInitializing(false);
+        isCameraActiveRef.current = false;
+        isInitializingRef.current = false;
+        cleanupCamera();
+      });
 
-      setIsCameraActive(true);
+      // Verify video stream is ready
+      const checkVideoReady = () => {
+        // Guard: only continue polling if still initializing (use ref to avoid stale closure)
+        if (!isInitializingRef.current && !isCameraActiveRef.current) {
+          console.info('[BarcodeScanner] Polling stopped - camera no longer initializing');
+          return;
+        }
+        
+        if (videoRef.current) {
+          const readyState = videoRef.current.readyState;
+          console.info(`[BarcodeScanner] Video readyState: ${readyState}`);
+          
+          if (readyState >= 2) { // HAVE_CURRENT_DATA or better
+            console.info('[BarcodeScanner] ✓ Video stream is ready');
+            setIsInitializing(false);
+            isInitializingRef.current = false;
+            setIsCameraActive(true);
+            isCameraActiveRef.current = true;
+            setScanStatus('Zoeken naar barcode...');
+            
+            // Set timeout for scanning (15 seconds)
+            scanTimeoutRef.current = setTimeout(() => {
+              console.warn('[BarcodeScanner] Scan timeout reached (15s)');
+              setScanStatus('Geen barcode gevonden - probeer opnieuw');
+              // Schedule delayed stop (2s) and track it to prevent conflicts with manual restart
+              delayedStopTimeoutRef.current = setTimeout(() => {
+                stopCamera();
+              }, 2000);
+            }, 15000);
+          } else {
+            // Retry after a short delay and track the timeout
+            pollingTimeoutRef.current = setTimeout(checkVideoReady, 200);
+          }
+        }
+      };
+
+      // Start checking video readiness
+      checkVideoReady();
+
     } catch (err) {
-      console.error('Camera fout:', err);
-      setCameraError('Kan camera niet starten. Geef toestemming voor camera toegang.');
+      const errorMessage = err instanceof Error ? err.message : 'Onbekende fout';
+      console.error('[BarcodeScanner] Camera initialization failed:', err);
+      setCameraError(errorMessage);
+      setScanStatus('');
       setIsCameraActive(false);
+      setIsInitializing(false);
+      isCameraActiveRef.current = false;
+      isInitializingRef.current = false;
+      cleanupCamera();
     }
   };
 
   const stopCamera = () => {
-    if (codeReaderRef.current) {
-      codeReaderRef.current.reset();
-      codeReaderRef.current = null;
-    }
+    console.info('[BarcodeScanner] Stopping camera...');
+    cleanupCamera();
     setIsCameraActive(false);
+    setIsInitializing(false);
+    isCameraActiveRef.current = false;
+    isInitializingRef.current = false;
     setCameraError(null);
+    setScanStatus('');
+    setScanAttempts(0);
+    errorCountRef.current = 0;
   };
 
   return (
@@ -98,12 +243,12 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
           Scan de barcode onder dit scherm 
         </h2>
         <Button 
-          variant={isCameraActive ? "destructive" : "outline"}
+          variant={(isCameraActive || isInitializing) ? "destructive" : "outline"}
           size="default"
           onClick={handleCameraClick}
           data-testid="button-camera"
         >
-          {isCameraActive ? (
+          {(isCameraActive || isInitializing) ? (
             <>
               <X className="w-4 h-4 mr-2" />
               Stop Camera
@@ -118,21 +263,32 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       </div>
       
       <div className="bg-muted/50 rounded-lg p-8 border-2 border-dashed border-primary/20">
-        {isCameraActive ? (
+        {(isCameraActive || isInitializing) ? (
           <div className="flex flex-col items-center justify-center space-y-4">
             <video 
               ref={videoRef} 
               className="w-full max-w-md rounded-md border-2 border-primary"
+              autoPlay
+              playsInline
+              muted
               data-testid="video-camera"
             />
-            <p className="text-sm text-muted-foreground text-center">
-              Houd de barcode voor de camera
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground text-center">
+                {scanStatus || 'Houd de barcode voor de camera'}
+              </p>
+              {scanAttempts > 0 && (
+                <Badge variant="secondary" data-testid="badge-scan-attempts">
+                  {scanAttempts}
+                </Badge>
+              )}
+            </div>
           </div>
         ) : cameraError ? (
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="text-destructive text-center">
-              <p className="font-semibold">{cameraError}</p>
+              <p className="font-semibold" data-testid="text-camera-error">{cameraError}</p>
+              <p className="text-sm mt-2">Controleer camera toestemming in je browser</p>
             </div>
           </div>
         ) : (
