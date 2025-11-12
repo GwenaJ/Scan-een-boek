@@ -2,6 +2,8 @@ import { useState } from "react";
 import BarcodeScanner from "@/components/BarcodeScanner";
 import SearchBar from "@/components/SearchBar";
 import { useLocation } from "wouter";
+import librisLogo from "@assets/Libris logo_1762932124504.png";
+import blzLogo from "@assets/Blz logo_1762932137655.jpeg";
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,9 +29,10 @@ export default function HomePage() {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="p-4 border-b">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-2xl text-primary-foreground font-bold">S</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <img src={librisLogo} alt="Libris" className="h-10 w-auto" />
+              <img src={blzLogo} alt="BLZ" className="h-10 w-auto" />
             </div>
             <h1 className="text-2xl font-bold">Scan-een-Boek</h1>
           </div>
