@@ -69,8 +69,8 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="sr-only"
-        placeholder="Scan barcode..."
+        className="w-full px-4 py-3 border rounded-md text-center font-mono text-lg"
+        placeholder="Of typ ISBN hier en druk Enter..."
         data-testid="input-barcode-scanner"
         autoFocus
       />

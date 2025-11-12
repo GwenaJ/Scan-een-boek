@@ -22,37 +22,6 @@ export default function SearchResultsPage() {
   const title = urlParams.get('title');
   const author = urlParams.get('author');
   
-  // Centralized function to reset the auto-return timer
-  const resetAutoReturnTimer = () => {
-    if (autoReturnTimerRef.current) {
-      clearTimeout(autoReturnTimerRef.current);
-    }
-    autoReturnTimerRef.current = setTimeout(() => {
-      setLocation('/');
-    }, 7000);
-  };
-  
-  // Auto-return to idle after 7 seconds of inactivity
-  useEffect(() => {
-    resetAutoReturnTimer();
-    
-    // Reset timer on any user activity
-    const activityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
-    activityEvents.forEach(event => {
-      document.addEventListener(event, resetAutoReturnTimer);
-    });
-    
-    return () => {
-      if (autoReturnTimerRef.current) {
-        clearTimeout(autoReturnTimerRef.current);
-      }
-      // Cleanup activity listeners
-      activityEvents.forEach(event => {
-        document.removeEventListener(event, resetAutoReturnTimer);
-      });
-    };
-  }, [location]);
-  
   // Fetch book by ISBN if isbn param exists
   const { data: isbnBook, isLoading: isbnLoading, error: isbnError } = useQuery<Book>({
     queryKey: [`/api/books/${isbn}`],
@@ -74,6 +43,43 @@ export default function SearchResultsPage() {
   const results: Book[] = isbn ? (isbnBook ? [isbnBook] : []) : searchResults ?? [];
   const isLoading = isbn ? isbnLoading : searchLoading;
   const error = isbn ? isbnError : searchError;
+  
+  // Centralized function to reset the auto-return timer
+  const resetAutoReturnTimer = () => {
+    if (autoReturnTimerRef.current) {
+      clearTimeout(autoReturnTimerRef.current);
+    }
+    autoReturnTimerRef.current = setTimeout(() => {
+      setLocation('/');
+    }, 15000); // 15 seconds to allow for testing and real user interaction
+  };
+  
+  // Auto-return to idle after 15 seconds of inactivity
+  // Only start timer after data has loaded
+  useEffect(() => {
+    // Don't start timer while loading
+    if (isLoading) {
+      return;
+    }
+    
+    resetAutoReturnTimer();
+    
+    // Reset timer on any user activity
+    const activityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
+    activityEvents.forEach(event => {
+      document.addEventListener(event, resetAutoReturnTimer);
+    });
+    
+    return () => {
+      if (autoReturnTimerRef.current) {
+        clearTimeout(autoReturnTimerRef.current);
+      }
+      // Cleanup activity listeners
+      activityEvents.forEach(event => {
+        document.removeEventListener(event, resetAutoReturnTimer);
+      });
+    };
+  }, [location, isLoading]);
   
   const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
 

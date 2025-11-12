@@ -11,7 +11,7 @@ export default function HomePage() {
 
   const handleBarcodeScan = (barcode: string) => {
     console.log('Barcode scanned:', barcode);
-    setLocation(`/scan?isbn=${barcode}`);
+    setLocation(`/search?isbn=${barcode}`);
   };
 
   const handleSearchSubmit = (query: string) => {

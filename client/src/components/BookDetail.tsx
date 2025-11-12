@@ -50,7 +50,7 @@ export default function BookDetail({ book }: BookDetailProps) {
           
           <div className="w-full text-center space-y-2">
             <div className="text-4xl font-bold text-primary" data-testid="text-price">
-              €{book.price.toFixed(2)}
+              €{Number(book.price).toFixed(2)}
             </div>
             
             <h1 className="text-2xl font-bold" data-testid="text-title">{book.title}</h1>
