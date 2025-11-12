@@ -101,36 +101,26 @@ export class DbStorage implements IStorage {
     }
 
     // Use PostgreSQL trigram similarity search with word_similarity
-    const conditions: any[] = [];
+    let query = db.select().from(books);
     
-    if (title) {
-      conditions.push(sql`word_similarity(${title}, lower(${books.title})) >= 0.2`);
+    if (title && author) {
+      // Search by both title and author
+      query = query
+        .where(sql`word_similarity(${title}, lower(title)) >= 0.2 AND word_similarity(${author}, lower(author)) >= 0.2`)
+        .orderBy(sql`word_similarity(${title}, lower(title)) + word_similarity(${author}, lower(author)) DESC`);
+    } else if (title) {
+      // Search by title only
+      query = query
+        .where(sql`word_similarity(${title}, lower(title)) >= 0.2`)
+        .orderBy(sql`word_similarity(${title}, lower(title)) DESC`);
+    } else {
+      // Search by author only
+      query = query
+        .where(sql`word_similarity(${author}, lower(author)) >= 0.2`)
+        .orderBy(sql`word_similarity(${author}, lower(author)) DESC`);
     }
-    
-    if (author) {
-      conditions.push(sql`word_similarity(${author}, lower(${books.author})) >= 0.2`);
-    }
 
-    const whereClause = conditions.length > 1 
-      ? sql`${conditions[0]} AND ${conditions[1]}`
-      : conditions[0];
-
-    const result = await db
-      .select()
-      .from(books)
-      .where(whereClause)
-      .orderBy(sql`
-        CASE 
-          WHEN ${title} IS NOT NULL AND ${author} IS NOT NULL THEN
-            word_similarity(${title}, lower(${books.title})) + word_similarity(${author}, lower(${books.author}))
-          WHEN ${title} IS NOT NULL THEN
-            word_similarity(${title}, lower(${books.title}))
-          ELSE
-            word_similarity(${author}, lower(${books.author}))
-        END DESC
-      `)
-      .limit(50);
-
+    const result = await query.limit(50);
     return result;
   }
 

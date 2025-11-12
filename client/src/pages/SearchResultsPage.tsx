@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import type { Book } from "@shared/schema";
 import BookCard from "@/components/BookCard";
-import EditionPicker from "@/components/EditionPicker";
 import BookDetail from "@/components/BookDetail";
 import ErrorState from "@/components/ErrorState";
 import LoadingState from "@/components/LoadingState";
@@ -10,98 +11,97 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SearchResultsPage() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const autoReturnTimerRef = useRef<NodeJS.Timeout | null>(null);
   
-  // TODO: remove mock functionality
-  const [isLoading] = useState(false);
-  const [selectedBook, setSelectedBook] = useState<any>(null);
+  // Parse URL query parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const isbn = urlParams.get('isbn');
+  const title = urlParams.get('title');
+  const author = urlParams.get('author');
   
-  // Mock data for demonstration
-  const mockResults = [
-    {
-      isbn: '9780141395876',
-      title: 'The Prince',
-      author: 'Niccolo Machiavelli',
-      price: 9.95,
-      format: 'Paperback',
-      language: 'ENG',
-      publisher: 'Penguin Classics',
-      stock: 2,
-      location: 'Fictie - Engelstalig',
-      coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780141395876',
-      boekpaginaUrl: 'https://libris.nl/zoek?q=9780141395876',
-      releaseDate: '2014-03-27'
-    },
-    {
-      isbn: '9780141188621',
-      title: 'The Fountainhead',
-      author: 'Ayn Rand',
-      price: 9.95,
-      format: 'Paperback',
-      language: 'ENG',
-      publisher: 'Penguin Classics',
-      stock: 2,
-      location: 'Fictie - Engelstalig',
-      coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780141188621',
-      releaseDate: '2007-03-29'
-    },
-    {
-      isbn: '9780099272779',
-      title: 'Amsterdam',
-      author: 'Ian McEwan',
-      price: 5.00,
-      format: 'Paperback',
-      language: 'ENG',
-      publisher: 'Vintage',
-      stock: 0,
-      location: 'Fictie - Engelstalig',
-      coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780099272779',
-      releaseDate: '1999-02-04'
+  // Centralized function to reset the auto-return timer
+  const resetAutoReturnTimer = () => {
+    if (autoReturnTimerRef.current) {
+      clearTimeout(autoReturnTimerRef.current);
     }
-  ];
-
-  // Mock multiple editions
-  const mockEditions = [
-    {
-      isbn: '9780141188621',
-      title: 'The Fountainhead',
-      author: 'Ayn Rand',
-      price: 9.95,
-      format: 'Paperback',
-      language: 'ENG',
-      publisher: 'Penguin Classics',
-      stock: 2,
-      location: 'Fictie - Engelstalig',
-      coverUrl: 'https://images.mind-books.nl/libris/book/cover/9780141188621',
-      releaseDate: '2007-03-29'
-    },
-    {
-      isbn: '9780141188622',
-      title: 'The Fountainhead',
-      author: 'Ayn Rand',
-      price: 15.99,
-      format: 'Hardcover',
-      language: 'ENG',
-      publisher: 'Penguin Classics',
-      stock: 0,
-      location: 'Fictie - Engelstalig',
-      releaseDate: '2005-10-15'
-    }
-  ];
-
-  const [viewMode, setViewMode] = useState<'list' | 'editions' | 'detail'>('list');
+    autoReturnTimerRef.current = setTimeout(() => {
+      setLocation('/');
+    }, 7000);
+  };
+  
+  // Auto-return to idle after 7 seconds of inactivity
+  useEffect(() => {
+    resetAutoReturnTimer();
+    
+    // Reset timer on any user activity
+    const activityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
+    activityEvents.forEach(event => {
+      document.addEventListener(event, resetAutoReturnTimer);
+    });
+    
+    return () => {
+      if (autoReturnTimerRef.current) {
+        clearTimeout(autoReturnTimerRef.current);
+      }
+      // Cleanup activity listeners
+      activityEvents.forEach(event => {
+        document.removeEventListener(event, resetAutoReturnTimer);
+      });
+    };
+  }, [location]);
+  
+  // Fetch book by ISBN if isbn param exists
+  const { data: isbnBook, isLoading: isbnLoading, error: isbnError } = useQuery<Book>({
+    queryKey: [`/api/books/${isbn}`],
+    enabled: !!isbn
+  });
+  
+  // Fetch books by title/author if search params exist
+  const searchParams = new URLSearchParams();
+  if (title) searchParams.append('title', title);
+  if (author) searchParams.append('author', author);
+  const searchUrl = `/api/books/search?${searchParams.toString()}`;
+  
+  const { data: searchResults, isLoading: searchLoading, error: searchError } = useQuery<Book[]>({
+    queryKey: [searchUrl],
+    enabled: !isbn && (!!title || !!author)
+  });
+  
+  // Determine the display data based on query type
+  const results: Book[] = isbn ? (isbnBook ? [isbnBook] : []) : searchResults ?? [];
+  const isLoading = isbn ? isbnLoading : searchLoading;
+  const error = isbn ? isbnError : searchError;
+  
+  const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
 
   const handleSearchSubmit = (query: string) => {
-    console.log('Search submitted:', query);
+    resetAutoReturnTimer();
+    if (query.trim()) {
+      const parts = query.split(' - ');
+      if (parts.length === 2) {
+        setLocation(`/search?title=${encodeURIComponent(parts[0].trim())}&author=${encodeURIComponent(parts[1].trim())}`);
+      } else {
+        setLocation(`/search?title=${encodeURIComponent(query.trim())}`);
+      }
+    }
+  };
+  
+  const handleSearchChange = (value: string) => {
+    resetAutoReturnTimer();
+    setSearchQuery(value);
   };
 
-  const handleBookClick = (book: any) => {
+  const handleBookClick = (book: Book) => {
+    resetAutoReturnTimer();
     setSelectedBook(book);
     setViewMode('detail');
   };
 
   const handleBack = () => {
+    resetAutoReturnTimer();
     if (viewMode === 'detail') {
       setViewMode('list');
       setSelectedBook(null);
@@ -127,7 +127,7 @@ export default function SearchResultsPage() {
           </div>
           <SearchBar
             value={searchQuery}
-            onChange={setSearchQuery}
+            onChange={handleSearchChange}
             onSubmit={handleSearchSubmit}
           />
         </div>
@@ -137,17 +137,23 @@ export default function SearchResultsPage() {
         <div className="max-w-2xl mx-auto">
           {isLoading ? (
             <LoadingState />
+          ) : error ? (
+            <ErrorState
+              title="Fout bij ophalen"
+              message="Er is een fout opgetreden bij het ophalen van de gegevens. Probeer het opnieuw."
+              action={{
+                label: 'Terug',
+                onClick: () => setLocation('/')
+              }}
+            />
           ) : viewMode === 'detail' && selectedBook ? (
             <BookDetail book={selectedBook} />
-          ) : viewMode === 'editions' ? (
-            <EditionPicker 
-              editions={mockEditions}
-              onSelect={handleBookClick}
-            />
-          ) : mockResults.length > 0 ? (
+          ) : results.length > 0 ? (
             <div className="space-y-3">
-              <h2 className="text-lg font-semibold">{mockResults.length} resultaten gevonden</h2>
-              {mockResults.map((book) => (
+              <h2 className="text-lg font-semibold" data-testid="text-results-count">
+                {results.length} {results.length === 1 ? 'resultaat' : 'resultaten'} gevonden
+              </h2>
+              {results.map((book: any) => (
                 <BookCard 
                   key={book.isbn} 
                   book={book}

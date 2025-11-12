@@ -1,24 +1,13 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import StockBadge from "./StockBadge";
-import { BookOpen, ChevronRight } from "lucide-react";
-
-export interface Book {
-  isbn: string;
-  title: string;
-  author: string;
-  price: number;
-  format?: string;
-  language?: string;
-  publisher?: string;
-  stock: number;
-  location?: string;
-  coverUrl?: string;
-  releaseDate?: string;
-}
+import { BookOpen } from "lucide-react";
+import type { Book } from "@shared/schema";
 
 interface BookCardProps {
-  book: Book;
+  book: Book & {
+    boekpaginaUrl?: string;
+  };
   onClick?: () => void;
 }
 
@@ -70,7 +59,7 @@ export default function BookCard({ book, onClick }: BookCardProps) {
             {book.language && <span>{book.language}</span>}
           </div>
           <div className="text-xl font-bold" data-testid="text-price">
-            €{book.price.toFixed(2)}
+            €{parseFloat(book.price).toFixed(2)}
           </div>
         </div>
         
@@ -80,7 +69,7 @@ export default function BookCard({ book, onClick }: BookCardProps) {
         </div>
         
         <div className="mt-2">
-          <StockBadge stock={book.stock} location={book.location} />
+          <StockBadge stock={book.storeStock} location={book.storeLocation} />
         </div>
       </div>
     </Card>
