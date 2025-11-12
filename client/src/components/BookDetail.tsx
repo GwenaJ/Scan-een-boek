@@ -85,7 +85,7 @@ export default function BookDetail({ book }: BookDetailProps) {
         
         <div className="mt-6 p-4 bg-muted rounded-lg">
           <div className="text-sm font-semibold mb-2">Beschikbaarheid</div>
-          <StockBadge stock={book.stock} location={book.location} />
+          <StockBadge stock={book.storeStock} location={book.storeLocation ?? undefined} />
         </div>
         
         {book.boekpaginaUrl && (
