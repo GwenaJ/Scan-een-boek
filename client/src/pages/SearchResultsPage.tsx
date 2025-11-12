@@ -7,6 +7,7 @@ import BookDetail from "@/components/BookDetail";
 import ErrorState from "@/components/ErrorState";
 import LoadingState from "@/components/LoadingState";
 import SearchBar from "@/components/SearchBar";
+import { parseSearchInput, buildSearchUrl } from "@/lib/searchUtils";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -18,9 +19,12 @@ export default function SearchResultsPage() {
   
   // Parse URL query parameters
   const urlParams = new URLSearchParams(window.location.search);
-  const isbn = urlParams.get('isbn');
+  const isbnRaw = urlParams.get('isbn');
   const title = urlParams.get('title');
   const author = urlParams.get('author');
+  
+  // Normalize ISBN (remove hyphens/spaces, uppercase for X check digit)
+  const isbn = isbnRaw ? isbnRaw.replace(/[\s-]/g, '').toUpperCase() : null;
   
   // Fetch book by ISBN if isbn param exists
   const { data: isbnBook, isLoading: isbnLoading, error: isbnError } = useQuery<Book>({
@@ -86,12 +90,9 @@ export default function SearchResultsPage() {
   const handleSearchSubmit = (query: string) => {
     resetAutoReturnTimer();
     if (query.trim()) {
-      const parts = query.split(' - ');
-      if (parts.length === 2) {
-        setLocation(`/search?title=${encodeURIComponent(parts[0].trim())}&author=${encodeURIComponent(parts[1].trim())}`);
-      } else {
-        setLocation(`/search?title=${encodeURIComponent(query.trim())}`);
-      }
+      const parsed = parseSearchInput(query);
+      const url = buildSearchUrl(parsed);
+      setLocation(url);
     }
   };
   

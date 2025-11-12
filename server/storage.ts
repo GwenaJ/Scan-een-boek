@@ -108,27 +108,28 @@ export class DbStorage implements IStorage {
     }
 
     // Use PostgreSQL trigram similarity search with word_similarity
-    let query = db.select().from(books);
-    
     if (title && author) {
       // Search by both title and author
-      query = query
+      const result = await db.select().from(books)
         .where(sql`word_similarity(${title}, lower(title)) >= 0.2 AND word_similarity(${author}, lower(author)) >= 0.2`)
-        .orderBy(sql`word_similarity(${title}, lower(title)) + word_similarity(${author}, lower(author)) DESC`);
+        .orderBy(sql`word_similarity(${title}, lower(title)) + word_similarity(${author}, lower(author)) DESC`)
+        .limit(50);
+      return result;
     } else if (title) {
       // Search by title only
-      query = query
+      const result = await db.select().from(books)
         .where(sql`word_similarity(${title}, lower(title)) >= 0.2`)
-        .orderBy(sql`word_similarity(${title}, lower(title)) DESC`);
+        .orderBy(sql`word_similarity(${title}, lower(title)) DESC`)
+        .limit(50);
+      return result;
     } else {
       // Search by author only
-      query = query
+      const result = await db.select().from(books)
         .where(sql`word_similarity(${author}, lower(author)) >= 0.2`)
-        .orderBy(sql`word_similarity(${author}, lower(author)) DESC`);
+        .orderBy(sql`word_similarity(${author}, lower(author)) DESC`)
+        .limit(50);
+      return result;
     }
-
-    const result = await query.limit(50);
-    return result;
   }
 
   async createBook(insertBook: InsertBook): Promise<Book> {

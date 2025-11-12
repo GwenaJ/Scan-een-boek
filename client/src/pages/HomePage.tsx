@@ -2,6 +2,7 @@ import { useState } from "react";
 import BarcodeScanner from "@/components/BarcodeScanner";
 import SearchBar from "@/components/SearchBar";
 import { useLocation } from "wouter";
+import { parseSearchInput, buildSearchUrl } from "@/lib/searchUtils";
 import librisLogo from "@assets/Libris logo_1762932124504.png";
 import blzLogo from "@assets/Blz logo_1762932137655.jpeg";
 
@@ -16,12 +17,10 @@ export default function HomePage() {
 
   const handleSearchSubmit = (query: string) => {
     if (query.trim()) {
-      const parts = query.split(' - ');
-      if (parts.length === 2) {
-        setLocation(`/search?title=${encodeURIComponent(parts[0].trim())}&author=${encodeURIComponent(parts[1].trim())}`);
-      } else {
-        setLocation(`/search?title=${encodeURIComponent(query.trim())}`);
-      }
+      const parsed = parseSearchInput(query);
+      const url = buildSearchUrl(parsed);
+      console.log('Search submitted:', { query, parsed, url });
+      setLocation(url);
     }
   };
 
