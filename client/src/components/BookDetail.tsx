@@ -96,7 +96,7 @@ export default function BookDetail({ book }: BookDetailProps) {
             data-testid="button-view-webshop"
           >
             <a href={book.boekpaginaUrl} target="_blank" rel="noopener noreferrer">
-              Bekijk op webshop
+              Bekijk in de webshop
               <ExternalLink className="ml-2 w-4 h-4" />
             </a>
           </Button>
