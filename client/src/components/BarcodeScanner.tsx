@@ -5,7 +5,7 @@ import { ScanLine, Camera, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from '@zxing/library';
 import { useTranslation } from "@/contexts/LanguageContext";
-import barcodeScannerImg from "@assets/Scan de barcode image_1763550425453.png";
+import barcodeScannerImg from "@assets/Scan de barcode image_1763554608129.png";
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void;
@@ -306,7 +306,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
                 <div 
                   className="w-full h-2 bg-destructive shadow-lg shadow-destructive/50"
                   style={{
-                    animation: 'scannerBeam 2s ease-in-out infinite'
+                    animation: 'scannerBeam 3.5s ease-in-out infinite'
                   }}
                 />
               </div>
