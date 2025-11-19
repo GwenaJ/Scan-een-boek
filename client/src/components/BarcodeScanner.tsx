@@ -296,15 +296,32 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="relative w-72 h-48 flex items-center justify-center">
+            <div className="relative w-72 h-48 flex items-center justify-center overflow-hidden">
               <img 
                 src={barcodeScannerImg} 
                 alt="Barcode Scanner"
                 className="w-full h-full object-contain"
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-2/3 h-1 bg-destructive/80 animate-pulse" />
+                <div 
+                  className="w-full h-2 bg-destructive shadow-lg shadow-destructive/50"
+                  style={{
+                    animation: 'scannerBeam 2s ease-in-out infinite'
+                  }}
+                />
               </div>
+              <style>{`
+                @keyframes scannerBeam {
+                  0%, 100% {
+                    transform: translateY(-60px);
+                    opacity: 0.6;
+                  }
+                  50% {
+                    transform: translateY(60px);
+                    opacity: 1;
+                  }
+                }
+              `}</style>
             </div>
             <p className="text-sm text-muted-foreground text-center">
               Idle
