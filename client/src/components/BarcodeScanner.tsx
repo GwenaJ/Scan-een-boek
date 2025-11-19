@@ -295,13 +295,14 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="w-48 h-32 border-4 border-primary/40 rounded-md relative">
-              <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-primary rounded-tl-md" />
-              <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-primary rounded-tr-md" />
-              <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-primary rounded-bl-md" />
-              <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-primary rounded-br-md" />
+            <div className="relative w-64 h-44">
+              <img 
+                src="/attached_assets/Barcode scanner_1763549487591.png" 
+                alt="Barcode Scanner"
+                className="w-full h-full object-contain"
+              />
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-full h-1 bg-primary/60 animate-pulse" />
+                <div className="w-3/4 h-1 bg-destructive/80 animate-pulse" />
               </div>
             </div>
             <p className="text-sm text-muted-foreground text-center">
