@@ -29,7 +29,8 @@ export default function SearchResultsPage() {
   // Fetch book by ISBN if isbn param exists
   const { data: isbnBook, isLoading: isbnLoading, error: isbnError } = useQuery<Book>({
     queryKey: [`/api/books/${isbn}`],
-    enabled: !!isbn
+    enabled: !!isbn,
+    retry: false, // Don't retry on 404
   });
   
   // Fetch books by title/author if search params exist
@@ -46,7 +47,15 @@ export default function SearchResultsPage() {
   // Determine the display data based on query type
   const results: Book[] = isbn ? (isbnBook ? [isbnBook] : []) : searchResults ?? [];
   const isLoading = isbn ? isbnLoading : searchLoading;
-  const error = isbn ? isbnError : searchError;
+  
+  // For ISBN lookup, treat 404 as "not found" (empty results) rather than error
+  const is404Error = (err: any) => {
+    return err?.message?.includes('404') || err?.response?.status === 404;
+  };
+  
+  const error = isbn 
+    ? (isbnError && !is404Error(isbnError) ? isbnError : null)
+    : searchError;
   
   // Centralized function to reset the auto-return timer
   const resetAutoReturnTimer = () => {
@@ -170,8 +179,12 @@ export default function SearchResultsPage() {
             </div>
           ) : (
             <ErrorState
-              title="Geen resultaten"
-              message="We konden geen boeken vinden voor uw zoekopdracht."
+              title={isbn ? "Boek niet gevonden" : "Geen resultaten"}
+              message={
+                isbn 
+                  ? `Het boek met ISBN/barcode ${isbn} is niet gevonden in onze database.`
+                  : "We konden geen boeken vinden voor uw zoekopdracht."
+              }
               action={{
                 label: 'Nieuwe zoekopdracht',
                 onClick: () => setLocation('/')
