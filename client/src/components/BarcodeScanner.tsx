@@ -13,13 +13,11 @@ interface BarcodeScannerProps {
 
 export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
   const { t } = useTranslation();
-  const [inputValue, setInputValue] = useState('');
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scanStatus, setScanStatus] = useState<string>('');
   const [scanAttempts, setScanAttempts] = useState(0);
-  const inputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
   const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -28,10 +26,6 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
   const errorCountRef = useRef(0);
   const isCameraActiveRef = useRef(false);
   const isInitializingRef = useRef(false);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -59,13 +53,6 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
         console.warn('Error resetting code reader:', err);
       }
       codeReaderRef.current = null;
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && inputValue.trim()) {
-      onScan(inputValue.trim());
-      setInputValue('');
     }
   };
 
@@ -329,18 +316,6 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
           </div>
         )}
       </div>
-
-      <input
-        ref={inputRef}
-        type="text"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        className="w-full px-4 py-3 border rounded-md text-center font-mono text-lg"
-        placeholder={t.barcodeInputPlaceholder}
-        data-testid="input-barcode-scanner"
-        autoFocus
-      />
       
       <p className="text-xs text-center text-muted-foreground">
         {t.scannerInstructions}
