@@ -8,6 +8,7 @@ import ErrorState from "@/components/ErrorState";
 import LoadingState from "@/components/LoadingState";
 import SearchBar from "@/components/SearchBar";
 import { parseSearchInput, buildSearchUrl } from "@/lib/searchUtils";
+import { useTranslation } from "@/contexts/LanguageContext";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -16,6 +17,7 @@ export default function SearchResultsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const autoReturnTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const { t } = useTranslation();
   
   // Parse URL query parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -139,12 +141,13 @@ export default function SearchResultsPage() {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="text-xl font-bold flex-1">Scan-een-Boek</h1>
+            <h1 className="text-xl font-bold flex-1">{t.appTitle}</h1>
           </div>
           <SearchBar
             value={searchQuery}
             onChange={handleSearchChange}
             onSubmit={handleSearchSubmit}
+            placeholder={t.searchPlaceholder}
           />
         </div>
       </header>
@@ -155,10 +158,10 @@ export default function SearchResultsPage() {
             <LoadingState />
           ) : error ? (
             <ErrorState
-              title="Fout bij ophalen"
-              message="Er is een fout opgetreden bij het ophalen van de gegevens. Probeer het opnieuw."
+              title={t.errorTitle}
+              message={t.errorMessage}
               action={{
-                label: 'Terug',
+                label: t.backButton,
                 onClick: () => setLocation('/')
               }}
             />
@@ -167,7 +170,7 @@ export default function SearchResultsPage() {
           ) : results.length > 0 ? (
             <div className="space-y-3">
               <h2 className="text-lg font-semibold" data-testid="text-results-count">
-                {results.length} {results.length === 1 ? 'resultaat' : 'resultaten'} gevonden
+                {t.resultsCount(results.length)}
               </h2>
               {results.map((book: any) => (
                 <BookCard 
@@ -179,14 +182,14 @@ export default function SearchResultsPage() {
             </div>
           ) : (
             <ErrorState
-              title={isbn ? "Boek niet gevonden" : "Geen resultaten"}
+              title={isbn ? t.bookNotFoundTitle : t.noResultsTitle}
               message={
                 isbn 
-                  ? `Het boek met ISBN/barcode ${isbn} is niet gevonden in onze database.`
-                  : "We konden geen boeken vinden voor uw zoekopdracht."
+                  ? t.bookNotFoundMessage(isbn)
+                  : t.noResultsMessage
               }
               action={{
-                label: 'Nieuwe zoekopdracht',
+                label: t.newSearchButton,
                 onClick: () => setLocation('/')
               }}
             />

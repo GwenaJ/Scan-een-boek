@@ -4,12 +4,14 @@ import StockBadge from "./StockBadge";
 import { BookOpen, ExternalLink } from "lucide-react";
 import type { Book } from "@shared/schema";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 interface BookDetailProps {
   book: Book;
 }
 
 export default function BookDetail({ book }: BookDetailProps) {
+  const { t } = useTranslation();
   const hebbanRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,30 +63,30 @@ export default function BookDetail({ book }: BookDetailProps) {
         <div className="grid grid-cols-2 gap-4 mt-6 text-sm">
           {book.format && (
             <div>
-              <div className="text-muted-foreground">Formaat</div>
+              <div className="text-muted-foreground">{t.format}</div>
               <div className="font-semibold">{book.format}</div>
             </div>
           )}
           {book.language && (
             <div>
-              <div className="text-muted-foreground">Taal</div>
+              <div className="text-muted-foreground">{t.language}</div>
               <div className="font-semibold">{book.language}</div>
             </div>
           )}
           {book.publisher && (
             <div>
-              <div className="text-muted-foreground">Uitgever</div>
+              <div className="text-muted-foreground">{t.publisher}</div>
               <div className="font-semibold">{book.publisher}</div>
             </div>
           )}
           <div>
-            <div className="text-muted-foreground">ISBN</div>
+            <div className="text-muted-foreground">{t.isbn}</div>
             <div className="font-semibold">{book.isbn}</div>
           </div>
         </div>
         
         <div className="mt-6 p-4 bg-muted rounded-lg">
-          <div className="text-sm font-semibold mb-2">Beschikbaarheid</div>
+          <div className="text-sm font-semibold mb-2">{t.availability}</div>
           <StockBadge stock={book.storeStock} location={book.storeLocation ?? undefined} />
         </div>
         
@@ -96,7 +98,7 @@ export default function BookDetail({ book }: BookDetailProps) {
             data-testid="button-view-webshop"
           >
             <a href={book.boekpaginaUrl} target="_blank" rel="noopener noreferrer">
-              Bekijk in de webshop
+              {t.viewWebshop}
               <ExternalLink className="ml-2 w-4 h-4" />
             </a>
           </Button>

@@ -4,12 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { ScanLine, Camera, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from '@zxing/library';
+import { useTranslation } from "@/contexts/LanguageContext";
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void;
 }
 
 export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = useState('');
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -80,7 +82,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       setIsInitializing(true);
       isInitializingRef.current = true;
       setCameraError(null);
-      setScanStatus('Camera wordt gestart...');
+      setScanStatus(t.cameraStarting);
       setScanAttempts(0);
       errorCountRef.current = 0;
       
@@ -101,7 +103,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       console.info(`[BarcodeScanner] Found ${videoInputDevices.length} video device(s)`);
       
       if (videoInputDevices.length === 0) {
-        throw new Error('Geen camera gevonden op dit apparaat');
+        throw new Error(t.noCamera);
       }
 
       // Log device info
@@ -124,7 +126,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
         return;
       }
 
-      setScanStatus('Camera wordt geactiveerd...');
+      setScanStatus(t.cameraActivating);
 
       // Re-assign to ref so stopCamera can always access it
       codeReaderRef.current = codeReader;
@@ -157,7 +159,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
         }
       ).catch((err) => {
         // Handle camera permission denied or device initialization failures
-        const errorMessage = err instanceof Error ? err.message : 'Camera initialisatie mislukt';
+        const errorMessage = err instanceof Error ? err.message : t.cameraInitFailed;
         console.error('[BarcodeScanner] decodeFromVideoDevice failed:', err);
         setCameraError(errorMessage);
         setScanStatus('');
@@ -186,12 +188,12 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
             isInitializingRef.current = false;
             setIsCameraActive(true);
             isCameraActiveRef.current = true;
-            setScanStatus('Zoeken naar barcode...');
+            setScanStatus(t.searchingBarcode);
             
             // Set timeout for scanning (15 seconds)
             scanTimeoutRef.current = setTimeout(() => {
               console.warn('[BarcodeScanner] Scan timeout reached (15s)');
-              setScanStatus('Geen barcode gevonden - probeer opnieuw');
+              setScanStatus(t.scanTimeoutMessage);
               // Schedule delayed stop (2s) and track it to prevent conflicts with manual restart
               delayedStopTimeoutRef.current = setTimeout(() => {
                 stopCamera();
@@ -208,7 +210,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       checkVideoReady();
 
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Onbekende fout';
+      const errorMessage = err instanceof Error ? err.message : t.cameraInitFailed;
       console.error('[BarcodeScanner] Camera initialization failed:', err);
       setCameraError(errorMessage);
       setScanStatus('');
@@ -240,7 +242,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <ScanLine className="w-5 h-5 text-primary" />
           </div>
-          Scan de barcode onder dit scherm 
+          {t.scannerTitle}
         </h2>
         <Button 
           variant={(isCameraActive || isInitializing) ? "destructive" : "outline"}
@@ -251,12 +253,12 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
           {(isCameraActive || isInitializing) ? (
             <>
               <X className="w-4 h-4 mr-2" />
-              Stop Camera
+              {t.cameraButton}
             </>
           ) : (
             <>
               <Camera className="w-4 h-4 mr-2" />
-              Camera
+              {t.cameraButton}
             </>
           )}
         </Button>
@@ -288,7 +290,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="text-destructive text-center">
               <p className="font-semibold" data-testid="text-camera-error">{cameraError}</p>
-              <p className="text-sm mt-2">Controleer camera toestemming in je browser</p>
+              <p className="text-sm mt-2">{t.cameraPermissionDenied}</p>
             </div>
           </div>
         ) : (
@@ -316,13 +318,13 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
         className="w-full px-4 py-3 border rounded-md text-center font-mono text-lg"
-        placeholder="Of typ ISBN hier en druk Enter..."
+        placeholder={t.barcodeInputPlaceholder}
         data-testid="input-barcode-scanner"
         autoFocus
       />
       
       <p className="text-xs text-center text-muted-foreground">
-        Houd de barcode van het boek (op de achterkant) voor de scanner die zich onder dit scherm bevindt
+        {t.scannerInstructions}
       </p>
     </Card>
   );
