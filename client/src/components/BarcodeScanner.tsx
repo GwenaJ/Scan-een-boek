@@ -20,6 +20,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
   const [scanAttempts, setScanAttempts] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const delayedStopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -34,6 +35,8 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
   }, []);
 
   const cleanupCamera = () => {
+    console.info('[BarcodeScanner] Cleanup camera started...');
+    
     if (scanTimeoutRef.current) {
       clearTimeout(scanTimeoutRef.current);
       scanTimeoutRef.current = null;
@@ -46,14 +49,34 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       clearTimeout(pollingTimeoutRef.current);
       pollingTimeoutRef.current = null;
     }
+    
+    // Stop MediaStream tracks manually FIRST
+    if (streamRef.current) {
+      console.info('[BarcodeScanner] Stopping media stream tracks...');
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+        console.debug(`[BarcodeScanner] Stopped track: ${track.label} (id: ${track.id})`);
+      });
+      streamRef.current = null;
+    }
+    
+    // Clear video srcObject
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    
+    // Reset code reader AFTER stopping stream
     if (codeReaderRef.current) {
       try {
+        console.info('[BarcodeScanner] Resetting code reader...');
         codeReaderRef.current.reset();
       } catch (err) {
-        console.warn('Error resetting code reader:', err);
+        console.warn('[BarcodeScanner] Error resetting code reader:', err);
       }
       codeReaderRef.current = null;
     }
+    
+    console.info('[BarcodeScanner] Cleanup camera completed');
   };
 
   const handleCameraClick = async () => {
@@ -77,50 +100,80 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       const codeReader = new BrowserMultiFormatReader();
       codeReaderRef.current = codeReader;
 
-      // Request camera with preference for back/environment-facing camera
-      // Use hints parameter to specify facingMode preference
-      console.info('[BarcodeScanner] Requesting camera with environment facing mode preference...');
-      
-      // Abort guard: check if user stopped camera during async operation
-      if (!isInitializingRef.current) {
-        console.info('[BarcodeScanner] Camera initialization aborted by user');
-        codeReader.reset();
-        return;
-      }
-
       // Verify video element exists
       if (!videoRef.current) {
         throw new Error('Video element niet gevonden');
       }
 
-      // Final abort guard before starting decoder
+      // MANUAL MediaStream acquisition with EXACT environment constraint
+      // This ensures we ALWAYS request back camera, and manage the stream ourselves
+      console.info('[BarcodeScanner] Requesting camera with EXACT environment constraint...');
+      
+      let stream: MediaStream;
+      try {
+        // Try EXACT environment first (forces back camera on mobile)
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { exact: 'environment' },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        });
+        const track = stream.getVideoTracks()[0];
+        const settings = track.getSettings();
+        console.info(`[BarcodeScanner] ✓ Got EXACT environment camera: facingMode=${settings.facingMode}, device=${settings.deviceId?.substring(0, 8)}...`);
+        
+      } catch (exactError) {
+        // Fallback 1: Try IDEAL environment (prefers back camera)
+        console.warn('[BarcodeScanner] EXACT environment failed, trying IDEAL...', exactError);
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }
+          });
+          const track = stream.getVideoTracks()[0];
+          const settings = track.getSettings();
+          console.info(`[BarcodeScanner] ✓ Got IDEAL environment camera: facingMode=${settings.facingMode}, device=${settings.deviceId?.substring(0, 8)}...`);
+          
+        } catch (idealError) {
+          // Fallback 2: Any available camera
+          console.warn('[BarcodeScanner] IDEAL environment failed, using default...', idealError);
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }
+          });
+          const track = stream.getVideoTracks()[0];
+          const settings = track.getSettings();
+          console.info(`[BarcodeScanner] ✓ Got default camera: facingMode=${settings.facingMode || 'unknown'}, device=${settings.deviceId?.substring(0, 8)}...`);
+        }
+      }
+      
+      // Abort guard: check if user stopped camera during async operation
       if (!isInitializingRef.current) {
-        console.info('[BarcodeScanner] Camera initialization aborted before decoder start');
+        console.info('[BarcodeScanner] Camera initialization aborted by user');
+        stream.getTracks().forEach(track => track.stop());
         codeReader.reset();
         return;
       }
 
+      // Store stream in ref for cleanup
+      streamRef.current = stream;
+      
+      // Attach stream to video element
+      videoRef.current.srcObject = stream;
       setScanStatus(t.cameraActivating);
 
-      // Re-assign to ref so stopCamera can always access it
-      codeReaderRef.current = codeReader;
-
-      // Start decoding with enhanced error handling and camera constraints
-      // Use constraints to prefer back camera (environment-facing)
-      // Note: Don't await this - it runs continuously in background
-      console.info('[BarcodeScanner] Starting decode from video device with environment-facing preference...');
+      // Start continuous scanning from the manual stream
+      // decodeFromStream accepts a MediaStream and provides continuous callback
+      console.info('[BarcodeScanner] Starting continuous decode from manual stream...');
       
-      // ZXing's decodeFromConstraints method allows specifying facingMode
-      const constraints: MediaStreamConstraints = {
-        video: {
-          facingMode: { ideal: 'environment' }, // Prefer back camera on mobile
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
-      };
-      
-      codeReader.decodeFromConstraints(
-        constraints,
+      await codeReader.decodeFromStream(
+        stream,
         videoRef.current,
         (result, error) => {
           if (result) {
@@ -130,22 +183,18 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
             onScan(barcode);
             stopCamera();
           } else if (error) {
-            // Increment error count but don't spam logs for common "not found" errors
+            // No barcode found - this is normal during continuous scanning
             errorCountRef.current++;
-            
-            // Only log every 20th error to avoid spam
             if (errorCountRef.current % 20 === 0) {
-              console.debug(`[BarcodeScanner] Scan attempt ${errorCountRef.current}: ${error.message}`);
+              console.debug(`[BarcodeScanner] Scan attempt ${errorCountRef.current}`);
             }
-            
-            // Update attempts counter for user feedback
             setScanAttempts(prev => prev + 1);
           }
         }
       ).catch((err) => {
-        // Handle camera permission denied or device initialization failures
+        // Handle stream decoding failures
         const errorMessage = err instanceof Error ? err.message : t.cameraInitFailed;
-        console.error('[BarcodeScanner] decodeFromConstraints failed:', err);
+        console.error('[BarcodeScanner] decodeFromStream failed:', err);
         setCameraError(errorMessage);
         setScanStatus('');
         setIsCameraActive(false);
