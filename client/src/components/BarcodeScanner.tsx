@@ -5,6 +5,7 @@ import { ScanLine, Camera, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from '@zxing/library';
 import { useTranslation } from "@/contexts/LanguageContext";
+import barcodeScannerImg from "@assets/Barcode scanner_1763549487591.png";
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void;
@@ -295,14 +296,14 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="relative w-64 h-44">
+            <div className="relative w-72 h-48 flex items-center justify-center">
               <img 
-                src="/attached_assets/Barcode scanner_1763549487591.png" 
+                src={barcodeScannerImg} 
                 alt="Barcode Scanner"
                 className="w-full h-full object-contain"
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-3/4 h-1 bg-destructive/80 animate-pulse" />
+                <div className="w-2/3 h-1 bg-destructive/80 animate-pulse" />
               </div>
             </div>
             <p className="text-sm text-muted-foreground text-center">
