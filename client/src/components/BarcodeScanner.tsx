@@ -77,9 +77,9 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       const codeReader = new BrowserMultiFormatReader();
       codeReaderRef.current = codeReader;
 
-      // List available video devices
-      console.info('[BarcodeScanner] Enumerating video devices...');
-      const videoInputDevices = await codeReader.listVideoInputDevices();
+      // Request camera with preference for back/environment-facing camera
+      // Use hints parameter to specify facingMode preference
+      console.info('[BarcodeScanner] Requesting camera with environment facing mode preference...');
       
       // Abort guard: check if user stopped camera during async operation
       if (!isInitializingRef.current) {
@@ -87,20 +87,6 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
         codeReader.reset();
         return;
       }
-      
-      console.info(`[BarcodeScanner] Found ${videoInputDevices.length} video device(s)`);
-      
-      if (videoInputDevices.length === 0) {
-        throw new Error(t.noCamera);
-      }
-
-      // Log device info
-      videoInputDevices.forEach((device, index) => {
-        console.info(`[BarcodeScanner] Device ${index}: ${device.label || 'Unnamed'} (${device.deviceId})`);
-      });
-
-      const selectedDeviceId = videoInputDevices[0].deviceId;
-      console.info(`[BarcodeScanner] Selected device: ${selectedDeviceId}`);
 
       // Verify video element exists
       if (!videoRef.current) {
@@ -119,11 +105,22 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       // Re-assign to ref so stopCamera can always access it
       codeReaderRef.current = codeReader;
 
-      // Start decoding with enhanced error handling
+      // Start decoding with enhanced error handling and camera constraints
+      // Use constraints to prefer back camera (environment-facing)
       // Note: Don't await this - it runs continuously in background
-      console.info('[BarcodeScanner] Starting decode from video device...');
-      codeReader.decodeFromVideoDevice(
-        selectedDeviceId,
+      console.info('[BarcodeScanner] Starting decode from video device with environment-facing preference...');
+      
+      // ZXing's decodeFromConstraints method allows specifying facingMode
+      const constraints: MediaStreamConstraints = {
+        video: {
+          facingMode: { ideal: 'environment' }, // Prefer back camera on mobile
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      };
+      
+      codeReader.decodeFromConstraints(
+        constraints,
         videoRef.current,
         (result, error) => {
           if (result) {
@@ -148,7 +145,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       ).catch((err) => {
         // Handle camera permission denied or device initialization failures
         const errorMessage = err instanceof Error ? err.message : t.cameraInitFailed;
-        console.error('[BarcodeScanner] decodeFromVideoDevice failed:', err);
+        console.error('[BarcodeScanner] decodeFromConstraints failed:', err);
         setCameraError(errorMessage);
         setScanStatus('');
         setIsCameraActive(false);
