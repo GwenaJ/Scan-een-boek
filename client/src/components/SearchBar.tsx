@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 interface SearchBarProps {
   value: string;
@@ -10,7 +11,9 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export default function SearchBar({ value, onChange, onSubmit, placeholder = "Of zoek op titel en/of auteur" }: SearchBarProps) {
+export default function SearchBar({ value, onChange, onSubmit, placeholder }: SearchBarProps) {
+  const { t } = useTranslation();
+  const placeholderText = placeholder || t.searchPlaceholder;
   const [localValue, setLocalValue] = useState(value);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +40,7 @@ export default function SearchBar({ value, onChange, onSubmit, placeholder = "Of
           type="text"
           value={localValue}
           onChange={handleChange}
-          placeholder={placeholder}
+          placeholder={placeholderText}
           className="pl-10 pr-10 h-12"
           data-testid="input-search"
         />

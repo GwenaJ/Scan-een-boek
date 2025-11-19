@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import StockBadge from "./StockBadge";
 import { BookOpen } from "lucide-react";
 import type { Book } from "@shared/schema";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 interface BookCardProps {
   book: Book & {
@@ -12,6 +13,8 @@ interface BookCardProps {
 }
 
 export default function BookCard({ book, onClick }: BookCardProps) {
+  const { t } = useTranslation();
+  
   return (
     <Card 
       className="flex gap-4 p-4"
@@ -44,7 +47,7 @@ export default function BookCard({ book, onClick }: BookCardProps) {
             size="sm"
             data-testid="button-select-book"
           >
-            Selecteer
+            {t.selectButton}
           </Button>
         </div>
         
@@ -64,12 +67,12 @@ export default function BookCard({ book, onClick }: BookCardProps) {
         </div>
         
         <div className="text-sm text-muted-foreground">
-          {book.releaseDate && <div>Verschenen: {book.releaseDate}</div>}
+          {book.releaseDate && <div>{t.released}: {book.releaseDate}</div>}
           {book.publisher && <div>{book.publisher}</div>}
         </div>
         
         <div className="mt-2">
-          <StockBadge stock={book.storeStock} location={book.storeLocation} />
+          <StockBadge stock={book.storeStock} location={book.storeLocation ?? undefined} />
         </div>
       </div>
     </Card>

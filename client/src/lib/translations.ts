@@ -48,6 +48,10 @@ export const translations = {
     // LoadingState
     searching: "Zoeken...",
     
+    // BookCard
+    selectButton: "Selecteer",
+    released: "Verschenen",
+    
     // Language toggle
     languageToggle: "ENG",
   },
@@ -99,6 +103,10 @@ export const translations = {
     
     // LoadingState
     searching: "Searching...",
+    
+    // BookCard
+    selectButton: "Select",
+    released: "Released",
     
     // Language toggle
     languageToggle: "NL",

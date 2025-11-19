@@ -17,7 +17,7 @@ export default function SearchResultsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const autoReturnTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const { t } = useTranslation();
+  const { t, language, setLanguage } = useTranslation();
   
   // Parse URL query parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -59,6 +59,9 @@ export default function SearchResultsPage() {
     ? (isbnError && !is404Error(isbnError) ? isbnError : null)
     : searchError;
   
+  // View mode state (must be declared before useEffect that uses it)
+  const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
+  
   // Centralized function to reset the auto-return timer
   const resetAutoReturnTimer = () => {
     if (autoReturnTimerRef.current) {
@@ -70,10 +73,15 @@ export default function SearchResultsPage() {
   };
   
   // Auto-return to idle after 15 seconds of inactivity
-  // Only start timer after data has loaded
+  // Only start timer after data has loaded and when not in detail view
   useEffect(() => {
-    // Don't start timer while loading
-    if (isLoading) {
+    // Don't start timer while loading or in detail view
+    if (isLoading || viewMode === 'detail') {
+      // Clear any existing timer when entering detail view
+      if (autoReturnTimerRef.current) {
+        clearTimeout(autoReturnTimerRef.current);
+        autoReturnTimerRef.current = null;
+      }
       return;
     }
     
@@ -94,9 +102,7 @@ export default function SearchResultsPage() {
         document.removeEventListener(event, resetAutoReturnTimer);
       });
     };
-  }, [location, isLoading]);
-  
-  const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
+  }, [location, isLoading, viewMode]);
 
   const handleSearchSubmit = (query: string) => {
     resetAutoReturnTimer();
@@ -128,6 +134,11 @@ export default function SearchResultsPage() {
     }
   };
 
+  const toggleLanguage = () => {
+    resetAutoReturnTimer(); // Reset timer on language toggle
+    setLanguage(language === 'nl' ? 'en' : 'nl');
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="p-4 border-b sticky top-0 bg-background z-10">
@@ -142,6 +153,15 @@ export default function SearchResultsPage() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="text-xl font-bold flex-1">{t.appTitle}</h1>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={toggleLanguage}
+              className="text-sm font-medium"
+              data-testid="button-language-toggle"
+            >
+              {t.languageToggle}
+            </Button>
           </div>
           <SearchBar
             value={searchQuery}
