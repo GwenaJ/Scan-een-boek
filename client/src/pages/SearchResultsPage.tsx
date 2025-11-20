@@ -6,15 +6,12 @@ import BookCard from "@/components/BookCard";
 import BookDetail from "@/components/BookDetail";
 import ErrorState from "@/components/ErrorState";
 import LoadingState from "@/components/LoadingState";
-import SearchBar from "@/components/SearchBar";
-import { parseSearchInput, buildSearchUrl } from "@/lib/searchUtils";
 import { useTranslation } from "@/contexts/LanguageContext";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SearchResultsPage() {
   const [location, setLocation] = useLocation();
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const autoReturnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { t, language, setLanguage } = useTranslation();
@@ -22,42 +19,26 @@ export default function SearchResultsPage() {
   // Parse URL query parameters
   const urlParams = new URLSearchParams(window.location.search);
   const isbnRaw = urlParams.get('isbn');
-  const title = urlParams.get('title');
-  const author = urlParams.get('author');
   
   // Normalize ISBN (remove hyphens/spaces, uppercase for X check digit)
   const isbn = isbnRaw ? isbnRaw.replace(/[\s-]/g, '').toUpperCase() : null;
   
   // Fetch book by ISBN if isbn param exists
-  const { data: isbnBook, isLoading: isbnLoading, error: isbnError } = useQuery<Book>({
+  const { data: isbnBook, isLoading, error: isbnError } = useQuery<Book>({
     queryKey: [`/api/books/${isbn}`],
     enabled: !!isbn,
     retry: false, // Don't retry on 404
   });
   
-  // Fetch books by title/author if search params exist
-  const searchParams = new URLSearchParams();
-  if (title) searchParams.append('title', title);
-  if (author) searchParams.append('author', author);
-  const searchUrl = `/api/books/search?${searchParams.toString()}`;
-  
-  const { data: searchResults, isLoading: searchLoading, error: searchError } = useQuery<Book[]>({
-    queryKey: [searchUrl],
-    enabled: !isbn && (!!title || !!author)
-  });
-  
-  // Determine the display data based on query type
-  const results: Book[] = isbn ? (isbnBook ? [isbnBook] : []) : searchResults ?? [];
-  const isLoading = isbn ? isbnLoading : searchLoading;
+  // Determine the display data
+  const results: Book[] = isbnBook ? [isbnBook] : [];
   
   // For ISBN lookup, treat 404 as "not found" (empty results) rather than error
   const is404Error = (err: any) => {
     return err?.message?.includes('404') || err?.response?.status === 404;
   };
   
-  const error = isbn 
-    ? (isbnError && !is404Error(isbnError) ? isbnError : null)
-    : searchError;
+  const error = isbnError && !is404Error(isbnError) ? isbnError : null;
   
   // View mode state (must be declared before useEffect that uses it)
   const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
@@ -104,20 +85,6 @@ export default function SearchResultsPage() {
     };
   }, [location, isLoading, viewMode]);
 
-  const handleSearchSubmit = (query: string) => {
-    resetAutoReturnTimer();
-    if (query.trim()) {
-      const parsed = parseSearchInput(query);
-      const url = buildSearchUrl(parsed);
-      setLocation(url);
-    }
-  };
-  
-  const handleSearchChange = (value: string) => {
-    resetAutoReturnTimer();
-    setSearchQuery(value);
-  };
-
   const handleBookClick = (book: Book) => {
     resetAutoReturnTimer();
     setSelectedBook(book);
@@ -142,7 +109,7 @@ export default function SearchResultsPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="p-4 border-b sticky top-0 bg-background z-10">
-        <div className="max-w-2xl mx-auto space-y-3">
+        <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
@@ -163,12 +130,6 @@ export default function SearchResultsPage() {
               {t.languageToggle}
             </Button>
           </div>
-          <SearchBar
-            value={searchQuery}
-            onChange={handleSearchChange}
-            onSubmit={handleSearchSubmit}
-            placeholder={t.searchPlaceholder}
-          />
         </div>
       </header>
 
@@ -202,12 +163,8 @@ export default function SearchResultsPage() {
             </div>
           ) : (
             <ErrorState
-              title={isbn ? t.bookNotFoundTitle : t.noResultsTitle}
-              message={
-                isbn 
-                  ? t.bookNotFoundMessage(isbn)
-                  : t.noResultsMessage
-              }
+              title={t.bookNotFoundTitle}
+              message={t.bookNotFoundMessage(isbn || '')}
               action={{
                 label: t.newSearchButton,
                 onClick: () => setLocation('/')

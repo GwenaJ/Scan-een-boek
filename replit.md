@@ -1,7 +1,7 @@
 # Scan-een-Boek - Dutch Bookstore Kiosk Application
 
 ## Project Overview
-Mobile-first web application for instant book price lookup via barcode scanning (USB scanner + camera fallback) with fuzzy search capabilities. Built for a Dutch bookstore kiosk.
+Mobile-first web application for instant book price lookup via barcode scanning (USB scanner + camera fallback). Built for a Dutch bookstore kiosk.
 
 ## Tech Stack
 - **Frontend**: React + TypeScript + Wouter + TanStack Query
@@ -10,7 +10,16 @@ Mobile-first web application for instant book price lookup via barcode scanning 
 - **ORM**: Drizzle ORM
 - **UI**: Tailwind CSS + shadcn/ui components
 
-## Recent Changes (November 12, 2025)
+## Recent Changes
+
+### November 20, 2025 - Simplified to Barcode-Only
+- **Removed** title/author search functionality
+- **Removed** SearchBar component from HomePage
+- **Removed** `/api/books/search` API endpoint
+- **Removed** title/author query handling from SearchResultsPage
+- App now exclusively uses barcode scanning for ISBN lookup
+
+### November 12, 2025
 
 ### Data Import Fix
 - Fixed ISBN parsing to extract full 13-digit ISBNs from URLs (boekpagina_url and cover_url)
@@ -19,11 +28,8 @@ Mobile-first web application for instant book price lookup via barcode scanning 
 - Re-imported all 1005 books with correct ISBNs
 
 ### API Backend
-- **Route Ordering**: Fixed Express route matching by placing `/api/books/search` before `/api/books/:isbn`
-- **SQL Fix**: Corrected trigram search to use plain column names instead of Drizzle column references
-- **Endpoints**:
-  - GET `/api/books/:isbn` - Barcode lookup (returns single Book object)
-  - GET `/api/books/search?title=X&author=Y` - Fuzzy search (returns Book[] array)
+- **Endpoint**:
+  - GET `/api/books/:isbn` - Barcode lookup (returns single Book object or 404)
 
 ### Frontend Integration
 - Integrated SearchResultsPage with real API endpoints using TanStack Query
@@ -50,26 +56,20 @@ books table:
 - coverUrl: text (nullable)
 ```
 
-### PostgreSQL Trigram Search
-- Extension: pg_trgm v1.6
-- Indexes: GIN indexes on lower(title) and lower(author)
-- Search function: `word_similarity()` with 0.2 threshold
-- Results ordered by similarity score (descending)
 
 ## Architecture
 
 ### Data Flow
-1. User scans barcode or enters search query
-2. HomePage routes to SearchResultsPage with query params
-3. SearchResultsPage uses TanStack Query to fetch from API
-4. API calls DbStorage methods with Drizzle ORM
-5. PostgreSQL executes trigram similarity search
-6. Results displayed with BookCard components
-7. Auto-return to idle after 7 seconds
+1. User scans barcode via USB scanner or camera
+2. HomePage routes to SearchResultsPage with ISBN query param
+3. SearchResultsPage uses TanStack Query to fetch book by ISBN from API
+4. API calls DbStorage.getBookByIsbn() with exact ISBN match
+5. Result displayed with BookCard component
+6. Auto-return to idle after 15 seconds
 
 ### Key Components
-- **HomePage**: Barcode scanner + search input
-- **SearchResultsPage**: Results display with auto-return
+- **HomePage**: Barcode scanner only (USB + camera fallback)
+- **SearchResultsPage**: Single book result display with auto-return
 - **BookCard**: Book display with Libris/BLZ logos in header
 - **BookDetail**: Detailed view with Hebban widget
 - **BarcodeScanner**: USB + camera fallback support

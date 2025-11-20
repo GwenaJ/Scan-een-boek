@@ -1,30 +1,17 @@
-import { useState } from "react";
 import BarcodeScanner from "@/components/BarcodeScanner";
-import SearchBar from "@/components/SearchBar";
 import { useLocation } from "wouter";
-import { parseSearchInput, buildSearchUrl } from "@/lib/searchUtils";
 import { useTranslation } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import librisLogo from "@assets/Libris logo_1762932124504.png";
 import blzLogo from "@assets/Blz logo_1762932137655.jpeg";
 
 export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState('');
   const [, setLocation] = useLocation();
   const { t, language, setLanguage } = useTranslation();
 
   const handleBarcodeScan = (barcode: string) => {
     console.log('Barcode scanned:', barcode);
     setLocation(`/search?isbn=${barcode}`);
-  };
-
-  const handleSearchSubmit = (query: string) => {
-    if (query.trim()) {
-      const parsed = parseSearchInput(query);
-      const url = buildSearchUrl(parsed);
-      console.log('Search submitted:', { query, parsed, url });
-      setLocation(url);
-    }
   };
 
   const toggleLanguage = () => {
@@ -62,18 +49,6 @@ export default function HomePage() {
           </div>
 
           <BarcodeScanner onScan={handleBarcodeScan} />
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              {t.searchLabel}
-            </label>
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onSubmit={handleSearchSubmit}
-              placeholder={t.searchPlaceholder}
-            />
-          </div>
         </div>
       </main>
     </div>
