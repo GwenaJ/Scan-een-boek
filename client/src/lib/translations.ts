@@ -9,7 +9,7 @@ export const translations = {
     // BarcodeScanner
     scannerTitle: "Scan de barcode",
     cameraButton: "Camera",
-    scannerInstructions: "Houd de barcode van het boek (op de achterkant) voor de scanner die zich onder dit scherm bevindt",
+    scannerInstructions: "Scan de barcode met de scanner of houd de barcode voor de camera op je mobiel",
     barcodeInputPlaceholder: "Of typ ISBN hier en druk Enter...",
     cameraStarting: "Camera wordt gestart...",
     cameraActivating: "Camera wordt geactiveerd...",
@@ -65,7 +65,7 @@ export const translations = {
     // BarcodeScanner
     scannerTitle: "Scan the barcode",
     cameraButton: "Camera",
-    scannerInstructions: "Hold the book's barcode (on the back) in front of the scanner located below this screen",
+    scannerInstructions: "Scan the barcode with the scanner or hold the barcode in front of your mobile camera",
     barcodeInputPlaceholder: "Or type ISBN here and press Enter...",
     cameraStarting: "Camera is starting...",
     cameraActivating: "Camera is activating...",
