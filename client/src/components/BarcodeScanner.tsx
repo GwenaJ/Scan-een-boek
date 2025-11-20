@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ScanLine, Camera, X } from "lucide-react";
+import { ScanLine } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from '@zxing/library';
 import { useTranslation } from "@/contexts/LanguageContext";
@@ -28,11 +27,53 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
   const isCameraActiveRef = useRef(false);
   const isInitializingRef = useRef(false);
 
+  // Auto-start camera on mount for mobile devices
   useEffect(() => {
+    // Start camera automatically when component mounts
+    startCamera();
+    
     return () => {
       cleanupCamera();
     };
   }, []);
+
+  // USB Barcode Scanner Support - listens for keyboard input
+  useEffect(() => {
+    let barcodeBuffer = '';
+    let lastKeyTime = Date.now();
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const currentTime = Date.now();
+      const timeSinceLastKey = currentTime - lastKeyTime;
+      
+      // If more than 100ms since last key, start new barcode
+      // USB scanners type very fast (<50ms between chars)
+      if (timeSinceLastKey > 100) {
+        barcodeBuffer = '';
+      }
+      
+      lastKeyTime = currentTime;
+      
+      // Build barcode from key presses
+      if (e.key === 'Enter') {
+        // Barcode complete
+        if (barcodeBuffer.length >= 8) { // Valid barcodes are at least 8 chars
+          console.log('[USB Scanner] Barcode scanned:', barcodeBuffer);
+          onScan(barcodeBuffer);
+          barcodeBuffer = '';
+        }
+      } else if (e.key.length === 1) {
+        // Single character key (number, letter)
+        barcodeBuffer += e.key;
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onScan]);
 
   const cleanupCamera = () => {
     console.info('[BarcodeScanner] Cleanup camera started...');
@@ -79,13 +120,6 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
     console.info('[BarcodeScanner] Cleanup camera completed');
   };
 
-  const handleCameraClick = async () => {
-    if (isCameraActive || isInitializing) {
-      stopCamera();
-    } else {
-      await startCamera();
-    }
-  };
 
   const startCamera = async () => {
     try {
@@ -295,31 +329,13 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
 
   return (
     <Card className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-center">
         <h2 className="text-lg font-semibold flex items-center gap-2">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <ScanLine className="w-5 h-5 text-primary" />
           </div>
           {t.scannerTitle}
         </h2>
-        <Button 
-          variant={(isCameraActive || isInitializing) ? "destructive" : "outline"}
-          size="default"
-          onClick={handleCameraClick}
-          data-testid="button-camera"
-        >
-          {(isCameraActive || isInitializing) ? (
-            <>
-              <X className="w-4 h-4 mr-2" />
-              {t.cameraButton}
-            </>
-          ) : (
-            <>
-              <Camera className="w-4 h-4 mr-2" />
-              {t.cameraButton}
-            </>
-          )}
-        </Button>
       </div>
       
       <div className="bg-muted/50 rounded-lg p-8 border-2 border-dashed border-primary/20">
