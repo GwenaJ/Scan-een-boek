@@ -34,12 +34,12 @@ export default function BookDetail({ book }: BookDetailProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-8">
-        {/* Landscape iPad layout: Cover left, Info right */}
-        <div className="flex flex-row gap-8">
-          {/* Left side: Book cover */}
-          <div className="flex-shrink-0">
-            <div className="w-64 h-96 bg-muted rounded-md overflow-hidden shadow-lg">
+      <Card className="p-4 md:p-6">
+        {/* Responsive layout: vertical on mobile, horizontal on tablet+ */}
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+          {/* Book cover - centered on mobile, left on tablet+ */}
+          <div className="flex-shrink-0 mx-auto md:mx-0">
+            <div className="w-48 h-72 md:w-56 md:h-80 bg-muted rounded-md overflow-hidden shadow-lg">
               {book.coverUrl ? (
                 <img 
                   src={book.coverUrl} 
@@ -48,57 +48,57 @@ export default function BookDetail({ book }: BookDetailProps) {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <BookOpen className="w-20 h-20 text-muted-foreground" />
+                  <BookOpen className="w-16 h-16 md:w-20 md:h-20 text-muted-foreground" />
                 </div>
               )}
             </div>
           </div>
           
-          {/* Right side: Book information */}
-          <div className="flex-1 flex flex-col gap-4">
+          {/* Book information */}
+          <div className="flex-1 flex flex-col gap-3">
             {/* Title, Author, Price */}
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold leading-tight" data-testid="text-title">
+            <div className="space-y-1.5 text-center md:text-left">
+              <h1 className="text-2xl md:text-2xl font-bold leading-tight" data-testid="text-title">
                 {book.title}
               </h1>
-              <p className="text-xl text-muted-foreground" data-testid="text-author">
+              <p className="text-lg md:text-lg text-muted-foreground" data-testid="text-author">
                 {book.author}
               </p>
-              <div className="text-5xl font-bold text-primary" data-testid="text-price">
+              <div className="text-4xl md:text-5xl font-bold text-primary" data-testid="text-price">
                 €{Number(book.price).toFixed(2)}
               </div>
             </div>
             
             {/* Book details grid */}
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 md:gap-x-6 md:gap-y-2.5">
               {book.format && (
                 <div>
-                  <div className="text-sm text-muted-foreground">{t.format}</div>
-                  <div className="text-base font-semibold">{book.format}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">{t.format}</div>
+                  <div className="text-sm md:text-sm font-semibold">{book.format}</div>
                 </div>
               )}
               {book.language && (
                 <div>
-                  <div className="text-sm text-muted-foreground">{t.language}</div>
-                  <div className="text-base font-semibold">{book.language}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">{t.language}</div>
+                  <div className="text-sm md:text-sm font-semibold">{book.language}</div>
                 </div>
               )}
               {book.publisher && (
                 <div>
-                  <div className="text-sm text-muted-foreground">{t.publisher}</div>
-                  <div className="text-base font-semibold">{book.publisher}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">{t.publisher}</div>
+                  <div className="text-sm md:text-sm font-semibold">{book.publisher}</div>
                 </div>
               )}
               <div>
-                <div className="text-sm text-muted-foreground">{t.isbn}</div>
-                <div className="text-base font-semibold">{book.isbn}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">{t.isbn}</div>
+                <div className="text-sm md:text-sm font-semibold">{book.isbn}</div>
               </div>
             </div>
             
             {/* Availability section */}
-            <div className="mt-auto space-y-3">
-              <div className="p-4 bg-muted rounded-lg">
-                <div className="text-sm font-semibold mb-2">{t.availability}</div>
+            <div className="mt-auto space-y-2.5">
+              <div className="p-3 md:p-3.5 bg-muted rounded-lg">
+                <div className="text-xs md:text-sm font-semibold mb-1.5">{t.availability}</div>
                 <StockBadge stock={book.storeStock} location={book.storeLocation ?? undefined} />
               </div>
               
@@ -113,7 +113,7 @@ export default function BookDetail({ book }: BookDetailProps) {
                 >
                   <a href={book.boekpaginaUrl} target="_blank" rel="noopener noreferrer">
                     {t.viewWebshop}
-                    <ExternalLink className="ml-2 w-5 h-5" />
+                    <ExternalLink className="ml-2 w-4 h-4 md:w-5 md:h-5" />
                   </a>
                 </Button>
               )}
