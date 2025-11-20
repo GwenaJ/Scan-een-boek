@@ -7,7 +7,7 @@ export const translations = {
     searchPlaceholder: "Bijvoorbeeld: On the Road - Jack Kerouac",
     
     // BarcodeScanner
-    scannerTitle: "Scan de barcode onder dit scherm",
+    scannerTitle: "Scan de barcode",
     cameraButton: "Camera",
     scannerInstructions: "Houd de barcode van het boek (op de achterkant) voor de scanner die zich onder dit scherm bevindt",
     barcodeInputPlaceholder: "Of typ ISBN hier en druk Enter...",
@@ -63,7 +63,7 @@ export const translations = {
     searchPlaceholder: "Example: On the Road - Jack Kerouac",
     
     // BarcodeScanner
-    scannerTitle: "Scan the barcode below this screen",
+    scannerTitle: "Scan the barcode",
     cameraButton: "Camera",
     scannerInstructions: "Hold the book's barcode (on the back) in front of the scanner located below this screen",
     barcodeInputPlaceholder: "Or type ISBN here and press Enter...",
