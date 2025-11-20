@@ -43,7 +43,7 @@ export default function BookCard({ book, onClick }: BookCardProps) {
           </div>
           <Button 
             onClick={onClick}
-            variant="outline"
+            variant="destructive"
             size="sm"
             className="flex-shrink-0 text-xs px-3"
             data-testid="button-select-book"
