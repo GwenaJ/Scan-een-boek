@@ -35,7 +35,7 @@ export default function BookCard({ book, onClick }: BookCardProps) {
       </div>
       
       <div className="flex-1 flex flex-col gap-1 min-w-0">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+        <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-base sm:text-lg leading-tight" data-testid="text-title">
               {book.title}
@@ -43,9 +43,9 @@ export default function BookCard({ book, onClick }: BookCardProps) {
           </div>
           <Button 
             onClick={onClick}
-            variant="default"
+            variant="outline"
             size="sm"
-            className="w-full sm:w-auto sm:flex-shrink-0"
+            className="flex-shrink-0 text-xs px-3"
             data-testid="button-select-book"
           >
             {t.selectButton}
