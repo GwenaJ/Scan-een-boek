@@ -96,9 +96,9 @@ export default function BookDetail({ book }: BookDetailProps) {
             </div>
             
             {/* Availability section */}
-            <div className="mt-auto space-y-2.5">
-              <div className="p-3 md:p-3.5 bg-muted rounded-lg">
-                <div className="text-xs md:text-sm font-semibold mb-1.5">{t.availability}</div>
+            <div className="mt-auto space-y-2">
+              <div className="p-3 md:p-2 bg-muted rounded-lg">
+                <div className="text-xs font-semibold mb-1">{t.availability}</div>
                 <StockBadge stock={book.storeStock} location={book.storeLocation ?? undefined} />
               </div>
               
