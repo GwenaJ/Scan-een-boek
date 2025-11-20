@@ -17,10 +17,11 @@ Mobile-first web application for instant book price lookup via barcode scanning 
 - **Removed** SearchBar component from HomePage
 - **Removed** `/api/books/search` API endpoint
 - **Removed** title/author query handling from SearchResultsPage
-- **Auto-start scanning**: Camera now starts automatically on page load (no button needed)
-- **USB Scanner Support**: Added keyboard event listener for USB barcode scanners
-- **Removed** camera start/stop button - scanning is now automatic for both USB and camera
-- App now exclusively uses barcode scanning for ISBN lookup (USB scanner or camera)
+- **USB Scanner Support**: Added keyboard event listener for USB barcode scanners (always listening)
+- **Camera on-demand**: Camera starts when user taps the scanner area (not auto-start)
+- **30-second timeout**: Camera stops after 30 seconds if no barcode found
+- **Tap to restart**: After timeout, tap scanner area to restart camera
+- App now exclusively uses barcode scanning for ISBN lookup (USB scanner primary, camera fallback)
 
 ### November 12, 2025
 

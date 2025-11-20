@@ -18,6 +18,7 @@ export const translations = {
     noCamera: "Geen camera gevonden op dit apparaat",
     cameraInitFailed: "Camera initialisatie mislukt",
     scanTimeoutMessage: "Geen barcode gevonden. Probeer opnieuw of typ het ISBN handmatig in.",
+    tapToScan: "Tik hier om camera te gebruiken",
     
     // SearchResultsPage
     resultsCount: (count: number) => `${count} ${count === 1 ? 'resultaat' : 'resultaten'} gevonden`,
@@ -74,6 +75,7 @@ export const translations = {
     noCamera: "No camera found on this device",
     cameraInitFailed: "Camera initialization failed",
     scanTimeoutMessage: "No barcode found. Please try again or enter the ISBN manually.",
+    tapToScan: "Tap here to use camera",
     
     // SearchResultsPage
     resultsCount: (count: number) => `${count} ${count === 1 ? 'result' : 'results'} found`,

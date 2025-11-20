@@ -27,11 +27,8 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
   const isCameraActiveRef = useRef(false);
   const isInitializingRef = useRef(false);
 
-  // Auto-start camera on mount for mobile devices
+  // Cleanup on unmount
   useEffect(() => {
-    // Start camera automatically when component mounts
-    startCamera();
-    
     return () => {
       cleanupCamera();
     };
@@ -282,15 +279,15 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
             isCameraActiveRef.current = true;
             setScanStatus(t.searchingBarcode);
             
-            // Set timeout for scanning (15 seconds)
+            // Set timeout for scanning (30 seconds)
             scanTimeoutRef.current = setTimeout(() => {
-              console.warn('[BarcodeScanner] Scan timeout reached (15s)');
+              console.warn('[BarcodeScanner] Scan timeout reached (30s)');
               setScanStatus(t.scanTimeoutMessage);
               // Schedule delayed stop (2s) and track it to prevent conflicts with manual restart
               delayedStopTimeoutRef.current = setTimeout(() => {
                 stopCamera();
               }, 2000);
-            }, 15000);
+            }, 30000);
           } else {
             // Retry after a short delay and track the timeout
             pollingTimeoutRef.current = setTimeout(checkVideoReady, 200);
@@ -372,7 +369,11 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center space-y-4">
+          <div 
+            className="flex flex-col items-center justify-center space-y-4 cursor-pointer hover-elevate active-elevate-2 rounded-lg p-4 transition-all"
+            onClick={startCamera}
+            data-testid="button-start-camera"
+          >
             <div className="relative w-72 h-48 flex items-center justify-center overflow-hidden">
               <img 
                 src={barcodeScannerImg} 
@@ -400,6 +401,9 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
                 }
               `}</style>
             </div>
+            <p className="text-sm text-muted-foreground text-center">
+              {t.tapToScan}
+            </p>
           </div>
         )}
       </div>
