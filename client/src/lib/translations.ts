@@ -1,7 +1,7 @@
 export const translations = {
   nl: {
     // HomePage
-    appTitle: "Scan-een-Boek",
+    appTitle: "Barcode scanner",
     scanInstructions: "Scan de barcode, of zoek op titel en/of auteur.",
     searchLabel: "Of zoek op titel en/of auteur",
     searchPlaceholder: "Bijvoorbeeld: On the Road - Jack Kerouac",
@@ -57,7 +57,7 @@ export const translations = {
   },
   en: {
     // HomePage
-    appTitle: "Scan-a-Book",
+    appTitle: "Barcode scanner",
     scanInstructions: "Scan the barcode, or search by title and/or author.",
     searchLabel: "Or search by title and/or author",
     searchPlaceholder: "Example: On the Road - Jack Kerouac",
