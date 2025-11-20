@@ -170,9 +170,10 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
 
       // Start continuous scanning from the manual stream
       // decodeFromStream accepts a MediaStream and provides continuous callback
+      // NOTE: Don't await this - it's a long-running promise that only resolves when scanning stops
       console.info('[BarcodeScanner] Starting continuous decode from manual stream...');
       
-      await codeReader.decodeFromStream(
+      codeReader.decodeFromStream(
         stream,
         videoRef.current,
         (result, error) => {
