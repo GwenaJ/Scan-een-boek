@@ -384,9 +384,6 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
                 }
               `}</style>
             </div>
-            <p className="text-sm text-muted-foreground text-center">
-              Idle
-            </p>
           </div>
         )}
       </div>
