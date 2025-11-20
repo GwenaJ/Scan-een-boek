@@ -97,6 +97,7 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
         cleanupCamera();
       }
       
+      // Set initializing state FIRST to trigger video element render
       setIsInitializing(true);
       isInitializingRef.current = true;
       setCameraError(null);
@@ -104,7 +105,10 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       setScanAttempts(0);
       errorCountRef.current = 0;
       
-      // Verify video element exists
+      // Wait for next render cycle to ensure video element is in DOM
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Verify video element exists (after render)
       if (!videoRef.current) {
         throw new Error('Video element niet gevonden');
       }
