@@ -12,7 +12,7 @@ Mobile-first web application for instant book price lookup via barcode scanning 
 
 ## Recent Changes
 
-### November 20, 2025 - Simplified to Barcode-Only
+### November 20, 2025 - Simplified to Barcode-Only & Landscape iPad Layout
 - **Removed** title/author search functionality
 - **Removed** SearchBar component from HomePage
 - **Removed** `/api/books/search` API endpoint
@@ -21,6 +21,10 @@ Mobile-first web application for instant book price lookup via barcode scanning 
 - **Camera on-demand**: Camera starts when user taps the scanner area (not auto-start)
 - **30-second timeout**: Camera stops after 30 seconds if no barcode found
 - **Tap to restart**: After timeout, tap scanner area to restart camera
+- **Skip list view**: After scanning, app goes directly to BookDetail page (no intermediate list)
+- **Landscape iPad layout**: BookDetail redesigned for landscape tablets
+  - Book cover on left (256×384px)
+  - Book info on right (title, author, price, details, availability, webshop button)
 - App now exclusively uses barcode scanning for ISBN lookup (USB scanner primary, camera fallback)
 
 ### November 12, 2025

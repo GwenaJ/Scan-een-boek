@@ -34,75 +34,92 @@ export default function BookDetail({ book }: BookDetailProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-48 h-72 bg-muted rounded-md overflow-hidden shadow-lg">
-            {book.coverUrl ? (
-              <img 
-                src={book.coverUrl} 
-                alt={book.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <BookOpen className="w-16 h-16 text-muted-foreground" />
-              </div>
-            )}
+      <Card className="p-8">
+        {/* Landscape iPad layout: Cover left, Info right */}
+        <div className="flex flex-row gap-8">
+          {/* Left side: Book cover */}
+          <div className="flex-shrink-0">
+            <div className="w-64 h-96 bg-muted rounded-md overflow-hidden shadow-lg">
+              {book.coverUrl ? (
+                <img 
+                  src={book.coverUrl} 
+                  alt={book.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <BookOpen className="w-20 h-20 text-muted-foreground" />
+                </div>
+              )}
+            </div>
           </div>
           
-          <div className="w-full text-center space-y-2">
-            <div className="text-4xl font-bold text-primary" data-testid="text-price">
-              €{Number(book.price).toFixed(2)}
+          {/* Right side: Book information */}
+          <div className="flex-1 flex flex-col gap-6">
+            {/* Title, Author, Price */}
+            <div className="space-y-3">
+              <h1 className="text-4xl font-bold leading-tight" data-testid="text-title">
+                {book.title}
+              </h1>
+              <p className="text-2xl text-muted-foreground" data-testid="text-author">
+                {book.author}
+              </p>
+              <div className="text-5xl font-bold text-primary" data-testid="text-price">
+                €{Number(book.price).toFixed(2)}
+              </div>
             </div>
             
-            <h1 className="text-2xl font-bold" data-testid="text-title">{book.title}</h1>
-            <p className="text-xl text-muted-foreground" data-testid="text-author">{book.author}</p>
+            {/* Book details grid */}
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              {book.format && (
+                <div>
+                  <div className="text-sm text-muted-foreground">{t.format}</div>
+                  <div className="text-lg font-semibold">{book.format}</div>
+                </div>
+              )}
+              {book.language && (
+                <div>
+                  <div className="text-sm text-muted-foreground">{t.language}</div>
+                  <div className="text-lg font-semibold">{book.language}</div>
+                </div>
+              )}
+              {book.publisher && (
+                <div>
+                  <div className="text-sm text-muted-foreground">{t.publisher}</div>
+                  <div className="text-lg font-semibold">{book.publisher}</div>
+                </div>
+              )}
+              <div>
+                <div className="text-sm text-muted-foreground">{t.isbn}</div>
+                <div className="text-lg font-semibold">{book.isbn}</div>
+              </div>
+            </div>
+            
+            {/* Availability section */}
+            <div className="mt-auto space-y-4">
+              <div className="p-5 bg-muted rounded-lg">
+                <div className="text-base font-semibold mb-3">{t.availability}</div>
+                <StockBadge stock={book.storeStock} location={book.storeLocation ?? undefined} />
+              </div>
+              
+              {/* Webshop button */}
+              {book.boekpaginaUrl && (
+                <Button 
+                  variant="default" 
+                  size="lg"
+                  className="w-full"
+                  asChild
+                  data-testid="button-view-webshop"
+                >
+                  <a href={book.boekpaginaUrl} target="_blank" rel="noopener noreferrer">
+                    {t.viewWebshop}
+                    <ExternalLink className="ml-2 w-5 h-5" />
+                  </a>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-        
-        <div className="grid grid-cols-2 gap-4 mt-6 text-sm">
-          {book.format && (
-            <div>
-              <div className="text-muted-foreground">{t.format}</div>
-              <div className="font-semibold">{book.format}</div>
-            </div>
-          )}
-          {book.language && (
-            <div>
-              <div className="text-muted-foreground">{t.language}</div>
-              <div className="font-semibold">{book.language}</div>
-            </div>
-          )}
-          {book.publisher && (
-            <div>
-              <div className="text-muted-foreground">{t.publisher}</div>
-              <div className="font-semibold">{book.publisher}</div>
-            </div>
-          )}
-          <div>
-            <div className="text-muted-foreground">{t.isbn}</div>
-            <div className="font-semibold">{book.isbn}</div>
-          </div>
-        </div>
-        
-        <div className="mt-6 p-4 bg-muted rounded-lg">
-          <div className="text-sm font-semibold mb-2">{t.availability}</div>
-          <StockBadge stock={book.storeStock} location={book.storeLocation ?? undefined} />
-        </div>
-        
-        {book.boekpaginaUrl && (
-          <Button 
-            variant="default" 
-            className="w-full mt-6"
-            asChild
-            data-testid="button-view-webshop"
-          >
-            <a href={book.boekpaginaUrl} target="_blank" rel="noopener noreferrer">
-              {t.viewWebshop}
-              <ExternalLink className="ml-2 w-4 h-4" />
-            </a>
-          </Button>
-        )}
       </Card>
       
       <div ref={hebbanRef} className="min-h-32" data-testid="container-hebban-widget" />
