@@ -43,6 +43,14 @@ export default function SearchResultsPage() {
   // View mode state (must be declared before useEffect that uses it)
   const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
   
+  // Automatically show detail view when book is found
+  useEffect(() => {
+    if (isbnBook && !isLoading) {
+      setSelectedBook(isbnBook);
+      setViewMode('detail');
+    }
+  }, [isbnBook, isLoading]);
+  
   // Centralized function to reset the auto-return timer
   const resetAutoReturnTimer = () => {
     if (autoReturnTimerRef.current) {
@@ -93,12 +101,8 @@ export default function SearchResultsPage() {
 
   const handleBack = () => {
     resetAutoReturnTimer();
-    if (viewMode === 'detail') {
-      setViewMode('list');
-      setSelectedBook(null);
-    } else {
-      setLocation('/');
-    }
+    // Always go back to home since we skip the list view
+    setLocation('/');
   };
 
   const toggleLanguage = () => {
