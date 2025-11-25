@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { BookOpen, ExternalLink } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import type { Book } from "@shared/schema";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "@/contexts/LanguageContext";
@@ -110,22 +109,6 @@ export default function BookDetail({ book }: BookDetailProps) {
                     </div>
                   )}
                 </div>
-              )}
-              
-              {/* Webshop button */}
-              {book.boekpaginaUrl && (
-                <Button 
-                  variant="default" 
-                  size="lg"
-                  className="w-full"
-                  asChild
-                  data-testid="button-view-webshop"
-                >
-                  <a href={book.boekpaginaUrl} target="_blank" rel="noopener noreferrer">
-                    {t.viewWebshop}
-                    <ExternalLink className="ml-2 w-4 h-4 md:w-5 md:h-5" />
-                  </a>
-                </Button>
               )}
             </div>
           </div>
