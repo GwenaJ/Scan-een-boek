@@ -117,7 +117,6 @@ export default function BookDetail({ book }: BookDetailProps) {
       
       <div className="w-full px-2 md:px-4">
         <div className="max-w-2xl mx-auto">
-          <div className="text-sm font-semibold mb-3 text-muted-foreground">Related Books</div>
           <div 
             ref={hebbanRef} 
             className="w-full min-h-64" 
