@@ -94,12 +94,21 @@ export default function BookDetail({ book }: BookDetailProps) {
               </div>
             </div>
             
-            {/* NUR and Webshop section */}
+            {/* Genre and Thema Codes section */}
             <div className="mt-auto space-y-2">
-              {book.nur && (
+              {(book.nur || book.themaCodes) && (
                 <div className="p-3 md:p-2 bg-muted rounded-lg">
-                  <div className="text-xs font-semibold mb-1">NUR</div>
-                  <div className="text-sm font-medium" data-testid="text-nur">{book.nur}</div>
+                  {book.nur && (
+                    <div className="text-sm font-medium mb-2" data-testid="text-genre">
+                      <span className="font-semibold">Genre: </span>
+                      <span>{book.nur}</span>
+                    </div>
+                  )}
+                  {book.themaCodes && (
+                    <div className="text-sm text-muted-foreground" data-testid="text-thema-codes">
+                      {book.themaCodes.split(',').map((code) => code.trim()).join(', ')}
+                    </div>
+                  )}
                 </div>
               )}
               
