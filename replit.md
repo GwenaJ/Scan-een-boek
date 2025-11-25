@@ -322,10 +322,11 @@ The application is designed for:
 
 ## Database Statistics
 
-- **Total Books**: 1,005
-- **ISBN Format**: 13-digit (extracted from URLs)
+- **Total Books**: 1,270
+- **ISBN Format**: 13-digit
 - **Average Query Time**: <100ms for single book lookup
-- **Data Source**: CSV import from bookstore inventory
+- **Data Source**: CSV import from bookstore inventory (November 2025)
+- **New Columns**: `nur` (NUR classification) and `thema_codes` (comma-separated theme codes)
 
 ---
 
