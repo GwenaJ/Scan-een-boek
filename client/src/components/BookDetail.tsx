@@ -115,7 +115,9 @@ export default function BookDetail({ book }: BookDetailProps) {
         </div>
       </Card>
       
-      <div ref={hebbanRef} className="min-h-32" data-testid="container-hebban-widget" />
+      <Card className="w-1/2 p-4">
+        <div ref={hebbanRef} className="min-h-32" data-testid="container-hebban-widget" />
+      </Card>
     </div>
   );
 }
