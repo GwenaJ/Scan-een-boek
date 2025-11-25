@@ -115,16 +115,7 @@ export default function BookDetail({ book }: BookDetailProps) {
         </div>
       </Card>
       
-      <div className="w-full px-2 md:px-4">
-        <div className="max-w-2xl mx-auto">
-          <div 
-            ref={hebbanRef} 
-            className="w-full min-h-64" 
-            data-testid="container-hebban-widget"
-            style={{ display: 'block', overflow: 'visible' }}
-          />
-        </div>
-      </div>
+      <div ref={hebbanRef} className="min-h-32" data-testid="container-hebban-widget" />
     </div>
   );
 }
