@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import StockBadge from "./StockBadge";
 import { BookOpen, ExternalLink } from "lucide-react";
 import type { Book } from "@shared/schema";
 import { useEffect, useRef } from "react";
@@ -95,12 +94,14 @@ export default function BookDetail({ book }: BookDetailProps) {
               </div>
             </div>
             
-            {/* Availability section */}
+            {/* NUR and Webshop section */}
             <div className="mt-auto space-y-2">
-              <div className="p-3 md:p-2 bg-muted rounded-lg">
-                <div className="text-xs font-semibold mb-1">{t.availability}</div>
-                <StockBadge stock={book.storeStock} location={book.storeLocation ?? undefined} />
-              </div>
+              {book.nur && (
+                <div className="p-3 md:p-2 bg-muted rounded-lg">
+                  <div className="text-xs font-semibold mb-1">NUR</div>
+                  <div className="text-sm font-medium" data-testid="text-nur">{book.nur}</div>
+                </div>
+              )}
               
               {/* Webshop button */}
               {book.boekpaginaUrl && (
