@@ -115,8 +115,8 @@ export default function BookDetail({ book }: BookDetailProps) {
         </div>
       </Card>
       
-      <div className="flex justify-center">
-        <div ref={hebbanRef} className="min-h-32" data-testid="container-hebban-widget" />
+      <div className="w-full flex justify-center px-4">
+        <div ref={hebbanRef} className="min-h-32 w-full md:max-w-2xl" data-testid="container-hebban-widget" />
       </div>
     </div>
   );
