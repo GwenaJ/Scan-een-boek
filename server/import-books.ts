@@ -26,9 +26,16 @@ async function importBooks() {
       let releaseDate = null;
       if (record.release_date && record.release_date.trim()) {
         try {
-          const [day, month, year] = record.release_date.split('/');
-          if (day && month && year) {
-            releaseDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          // Clean the date string - remove any newlines or extra characters
+          const cleanDate = record.release_date.trim().replace(/[\r\n]/g, '');
+          const [day, month, year] = cleanDate.split('/');
+          if (day && month && year && day.length <= 2 && month.length <= 2 && year.length === 4) {
+            const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            // Validate the date is valid
+            const testDate = new Date(formattedDate);
+            if (!isNaN(testDate.getTime())) {
+              releaseDate = formattedDate;
+            }
           }
         } catch (e) {
           console.warn(`Could not parse date: ${record.release_date}`);
