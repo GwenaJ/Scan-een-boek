@@ -6,15 +6,15 @@ import type { InsertBook } from '@shared/schema';
 async function importBooks() {
   try {
     console.log('Reading CSV file...');
-    const csvContent = await readFile('attached_assets/books_database_1762369006146.csv', 'utf-8');
+    const csvContent = await readFile('attached_assets/Nieuw Book DB_1764080742651.csv', 'utf-8');
     
     console.log('Parsing CSV...');
     const records = parse(csvContent, {
       columns: true,
       skip_empty_lines: true,
       trim: true,
-      // Don't automatically cast - keep everything as strings
-      cast: false
+      cast: false,
+      bom: true
     });
 
     console.log(`Found ${records.length} records in CSV`);
@@ -35,29 +35,11 @@ async function importBooks() {
         }
       }
 
-      // Extract ISBN from boekpagina_url or cover_url where it's stored with full precision
-      // The CSV has ISBNs in scientific notation which loses precision
-      let isbn = '';
+      // ISBN is now directly in the csv column
+      const isbn = record.isbn?.trim();
       
-      // Try to extract from boekpagina_url first (e.g., https://libris.nl/zoek?q=9780141395876)
-      if (record.boekpagina_url) {
-        const urlMatch = record.boekpagina_url.match(/q=(\d{13})/);
-        if (urlMatch) {
-          isbn = urlMatch[1];
-        }
-      }
-      
-      // Fallback: try to extract from cover_url (e.g., https://images.mind-books.nl/libris/book/cover/9780141395876)
-      if (!isbn && record.cover_url) {
-        const coverMatch = record.cover_url.match(/\/(\d{13})$/);
-        if (coverMatch) {
-          isbn = coverMatch[1];
-        }
-      }
-      
-      // If we still don't have an ISBN, skip this record
       if (!isbn) {
-        console.warn(`Could not extract ISBN from URLs for: ${record.title}`);
+        console.warn(`Missing ISBN for: ${record.title}`);
         return;
       }
 
@@ -70,10 +52,12 @@ async function importBooks() {
         format: record.format?.trim() || null,
         publisher: record.publisher?.trim() || null,
         releaseDate: releaseDate,
-        language: record.language?.trim() || null,
+        language: record.Language?.trim() || record.language?.trim() || null,
         storeStock: record.store_stock ? parseInt(record.store_stock) : 0,
-        storeLocation: record['store-location']?.trim() || null,
-        boekpaginaUrl: record.boekpagina_url?.trim() || null,
+        storeLocation: record.store_location?.trim() || null,
+        nur: record.nur?.trim() || null,
+        themaCodes: record.thema_codes?.trim() || null,
+        boekpaginaUrl: record.libris_url?.trim() || null,
         coverUrl: record.cover_url?.trim() || null,
       };
       
@@ -91,7 +75,6 @@ async function importBooks() {
     // First, clear existing books to avoid duplicates
     console.log('Clearing existing books...');
     const { db } = await import('./db');
-    const { books: booksTable } = await import('@shared/schema');
     const { sql } = await import('drizzle-orm');
     
     await db.execute(sql`TRUNCATE TABLE books`);
