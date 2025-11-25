@@ -29,6 +29,8 @@ export const books = pgTable("books", {
   language: text("language"),
   storeStock: integer("store_stock").notNull().default(0),
   storeLocation: text("store_location"),
+  nur: text("nur"),
+  themaCodes: text("thema_codes"),
   boekpaginaUrl: text("boekpagina_url"),
   coverUrl: text("cover_url"),
 });
