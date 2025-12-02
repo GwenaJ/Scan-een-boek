@@ -117,7 +117,7 @@ export default function BookDetail({ book }: BookDetailProps) {
       
       {/* Reviews section */}
       {book.recensies && (
-        <Card className="p-4 md:p-6">
+        <Card className="p-4 md:p-6 bg-card">
           <div className="text-sm whitespace-pre-wrap text-muted-foreground leading-relaxed" data-testid="text-reviews">
             {book.recensies}
           </div>
