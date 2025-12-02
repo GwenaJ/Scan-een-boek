@@ -6,7 +6,7 @@ import type { InsertBook } from '@shared/schema';
 async function importBooks() {
   try {
     console.log('Reading CSV file...');
-    const csvContent = await readFile('attached_assets/Nieuw Book DB_1764080742651.csv', 'utf-8');
+    const csvContent = await readFile('attached_assets/Nieuw_Book_DB_1764690694107.csv', 'utf-8');
     
     console.log('Parsing CSV...');
     const records = parse(csvContent, {
@@ -66,6 +66,7 @@ async function importBooks() {
         themaCodes: record.thema_codes?.trim() || null,
         boekpaginaUrl: record.libris_url?.trim() || null,
         coverUrl: record.cover_url?.trim() || null,
+        recensies: record.Recensies?.trim() || null,
       };
       
       // Deduplicate by ISBN - keep the first occurrence

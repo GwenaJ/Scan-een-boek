@@ -33,6 +33,7 @@ export const books = pgTable("books", {
   themaCodes: text("thema_codes"),
   boekpaginaUrl: text("boekpagina_url"),
   coverUrl: text("cover_url"),
+  recensies: text("recensies"),
 });
 
 export const insertBookSchema = createInsertSchema(books).omit({});
