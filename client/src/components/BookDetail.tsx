@@ -115,6 +115,16 @@ export default function BookDetail({ book }: BookDetailProps) {
         </div>
       </Card>
       
+      {/* Reviews section */}
+      {book.recensies && (
+        <Card className="p-4 md:p-6">
+          <h2 className="text-lg font-bold mb-3">Reviews</h2>
+          <div className="text-sm whitespace-pre-wrap text-muted-foreground leading-relaxed" data-testid="text-reviews">
+            {book.recensies}
+          </div>
+        </Card>
+      )}
+      
       <div ref={hebbanRef} className="min-h-32" data-testid="container-hebban-widget" />
     </div>
   );
