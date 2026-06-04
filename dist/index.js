@@ -467,7 +467,6 @@ app.use((req, res, next) => {
   next();
 });
 (async () => {
-  await ensureDatabaseSeeded();
   const server = await registerRoutes(app);
   app.use((err, _req, res, _next) => {
     const status = err.status || err.statusCode || 500;
@@ -487,5 +486,8 @@ app.use((req, res, next) => {
     reusePort: true
   }, () => {
     log(`serving on port ${port}`);
+    ensureDatabaseSeeded().catch((err) => {
+      console.error("Background database seeding failed:", err);
+    });
   });
 })();

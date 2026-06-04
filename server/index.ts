@@ -48,10 +48,6 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Ensure the database has search indexes and a populated catalog.
-  // Critical for freshly provisioned production databases after a deploy.
-  await ensureDatabaseSeeded();
-
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -82,5 +78,13 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+
+    // Seed the database AFTER the port is open so deployment health checks
+    // pass immediately. Importing the catalog into a fresh production DB can
+    // take many seconds; doing it before listening would time out the deploy.
+    // Runs in the background and never crashes the process on failure.
+    ensureDatabaseSeeded().catch((err) => {
+      console.error("Background database seeding failed:", err);
+    });
   });
 })();

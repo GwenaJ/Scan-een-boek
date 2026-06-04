@@ -18,6 +18,7 @@ description: How this app reaches the right DB in production and self-seeds the 
 **Why:** A freshly provisioned prod DB has tables (via publish flow) but zero books and no `pg_trgm` extension (needed for `word_similarity` title/author search in `server/storage.ts`). Without boot seeding, prod search/lookups return nothing.
 
 **How to apply / invariants to preserve when editing seeding:**
+- **Never block `server.listen()` on seeding.** Open the port FIRST, then run `ensureDatabaseSeeded()` inside the listen callback as fire-and-forget (`.catch(...)`). Importing the full catalog into a fresh prod DB takes many seconds; doing it before listening exceeds the autoscale deploy health-check window → deploy fails with "built successfully but failed to start." (This exact mistake happened once.)
 - Wrap seeding in a Postgres **advisory lock** (`pg_advisory_lock`, fixed key) on a dedicated `pool.connect()` client — autoscale boots multiple instances concurrently and they will race otherwise.
 - Inserts must be conflict-safe: `db.insert(books).values(batch).onConflictDoNothing()`.
 - Gate on **completeness**, not mere non-emptiness: compare DB count vs CSV count and re-import when `count < expected` so a partial import self-heals on next boot. Do NOT use `count > 0 → skip` (a partial import would be frozen forever).
