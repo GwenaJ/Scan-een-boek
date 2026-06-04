@@ -3,10 +3,16 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 import { readFileSync, existsSync } from "fs";
 
-// Get database URL from environment or /tmp/replitdb (for Replit deployments)
-let databaseUrl = process.env.DATABASE_URL;
+// In the production deployment, Replit injects its own DATABASE_URL that points
+// at an internal host ("helium") which is unreachable from the autoscale runtime.
+// PROD_DATABASE_URL is a production-scoped override holding the Neon connection
+// string for the same database used in development, so the live app connects
+// to the catalog data. In development this is unset and we fall back to
+// DATABASE_URL (the dev Neon database).
+let databaseUrl = process.env.PROD_DATABASE_URL || process.env.DATABASE_URL;
 
 console.log('Environment:', process.env.NODE_ENV || 'production');
+console.log('Using PROD_DATABASE_URL override:', !!process.env.PROD_DATABASE_URL);
 console.log('DATABASE_URL exists:', !!databaseUrl);
 
 if (!databaseUrl && existsSync('/tmp/replitdb')) {

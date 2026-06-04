@@ -58,8 +58,9 @@ var selectBookSchema = createInsertSchema(books);
 
 // server/db.ts
 import { readFileSync, existsSync } from "fs";
-var databaseUrl = process.env.DATABASE_URL;
+var databaseUrl = process.env.PROD_DATABASE_URL || process.env.DATABASE_URL;
 console.log("Environment:", process.env.NODE_ENV || "production");
+console.log("Using PROD_DATABASE_URL override:", !!process.env.PROD_DATABASE_URL);
 console.log("DATABASE_URL exists:", !!databaseUrl);
 if (!databaseUrl && existsSync("/tmp/replitdb")) {
   try {

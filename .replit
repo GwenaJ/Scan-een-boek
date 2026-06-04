@@ -40,3 +40,8 @@ waitForPort = 5000
 
 [agent]
 integrations = ["javascript_database:1.0.0"]
+
+[userenv]
+
+[userenv.production]
+PROD_DATABASE_URL = "postgresql://neondb_owner:npg_1FkrtKJu0wOG@ep-calm-darkness-af68zd0g.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require"
