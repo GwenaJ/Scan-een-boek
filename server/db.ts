@@ -3,28 +3,20 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 import { readFileSync, existsSync } from "fs";
 
-const isProduction = process.env.NODE_ENV === 'production';
+// Get database URL from environment or /tmp/replitdb (for Replit deployments)
+let databaseUrl = process.env.DATABASE_URL;
 
-console.log('Environment:', process.env.NODE_ENV || 'development');
+console.log('Environment:', process.env.NODE_ENV || 'production');
+console.log('DATABASE_URL exists:', !!databaseUrl);
 
-// In production, prefer /tmp/replitdb (Replit's Neon database) over DATABASE_URL
-// which points to the internal dev-only 'helium' host and is unreachable from production
-let databaseUrl: string | undefined;
-
-if (isProduction && existsSync('/tmp/replitdb')) {
+if (!databaseUrl && existsSync('/tmp/replitdb')) {
   try {
     databaseUrl = readFileSync('/tmp/replitdb', 'utf-8').trim();
-    console.log('Using database URL from /tmp/replitdb (production)');
+    console.log('Using database URL from /tmp/replitdb');
   } catch (err) {
     console.error('Error reading /tmp/replitdb:', err);
   }
 }
-
-if (!databaseUrl) {
-  databaseUrl = process.env.DATABASE_URL;
-}
-
-console.log('DATABASE_URL exists:', !!databaseUrl);
 
 if (!databaseUrl) {
   throw new Error(
