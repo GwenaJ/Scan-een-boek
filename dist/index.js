@@ -58,21 +58,17 @@ var selectBookSchema = createInsertSchema(books);
 
 // server/db.ts
 import { readFileSync, existsSync } from "fs";
-var isProduction = process.env.NODE_ENV === "production";
-console.log("Environment:", process.env.NODE_ENV || "development");
-var databaseUrl;
-if (isProduction && existsSync("/tmp/replitdb")) {
+var databaseUrl = process.env.DATABASE_URL;
+console.log("Environment:", process.env.NODE_ENV || "production");
+console.log("DATABASE_URL exists:", !!databaseUrl);
+if (!databaseUrl && existsSync("/tmp/replitdb")) {
   try {
     databaseUrl = readFileSync("/tmp/replitdb", "utf-8").trim();
-    console.log("Using database URL from /tmp/replitdb (production)");
+    console.log("Using database URL from /tmp/replitdb");
   } catch (err) {
     console.error("Error reading /tmp/replitdb:", err);
   }
 }
-if (!databaseUrl) {
-  databaseUrl = process.env.DATABASE_URL;
-}
-console.log("DATABASE_URL exists:", !!databaseUrl);
 if (!databaseUrl) {
   throw new Error(
     "DATABASE_URL must be set. Did you forget to provision a database?"
