@@ -67,20 +67,37 @@ export default function BookDetail({ book }: BookDetailProps) {
         {/* Responsive layout: vertical on mobile, horizontal on tablet+ */}
         <div className="flex flex-col md:flex-row gap-4 md:gap-6">
           {/* Book cover - centered on mobile, left on tablet+ */}
-          <div className="flex-shrink-0 mx-auto md:mx-0">
-            <div className="w-48 h-72 md:w-56 md:h-80 bg-muted rounded-md overflow-hidden shadow-lg">
-              {book.coverUrl ? (
-                <img 
-                  src={book.coverUrl} 
-                  alt={book.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <BookOpen className="w-16 h-16 md:w-20 md:h-20 text-muted-foreground" />
-                </div>
-              )}
-            </div>
+          <div className="flex-shrink-0 mx-auto md:mx-0 flex flex-col items-center gap-2">
+            <a
+              href={`https://libris.nl/${book.isbn}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-md hover-elevate active-elevate-2"
+              data-testid="link-cover"
+            >
+              <div className="w-48 h-72 md:w-56 md:h-80 bg-muted rounded-md overflow-hidden shadow-lg">
+                {book.coverUrl ? (
+                  <img 
+                    src={book.coverUrl} 
+                    alt={book.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <BookOpen className="w-16 h-16 md:w-20 md:h-20 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+            </a>
+            <a
+              href={`https://libris.nl/${book.isbn}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-center text-primary underline-offset-4 hover:underline w-48 md:w-56"
+              data-testid="link-detail-page"
+            >
+              {t.viewDetailPage}
+            </a>
           </div>
           
           {/* Book information */}
@@ -133,8 +150,8 @@ export default function BookDetail({ book }: BookDetailProps) {
             </div>
 
             {/* Availability */}
-            <div className="flex flex-col gap-1" data-testid="container-availability">
-              <div className={`inline-flex items-center gap-2 self-start px-3 py-1.5 rounded-md text-sm font-medium ${stockColor}`}>
+            <div className="flex flex-row flex-wrap items-center gap-x-3 gap-y-1.5" data-testid="container-availability">
+              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium ${stockColor}`}>
                 <span className={`w-2 h-2 rounded-full flex-shrink-0 ${stockDot}`} />
                 <span data-testid="text-stock-label">{stockLabel}</span>
               </div>

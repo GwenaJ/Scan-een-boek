@@ -33,6 +33,7 @@ export const translations = {
     
     // BookDetail
     viewWebshop: "Bekijk in de webshop",
+    viewDetailPage: "Ga naar de detailpagina op de website",
     availability: "Beschikbaarheid",
     format: "Formaat",
     language: "Taal",
@@ -92,6 +93,7 @@ export const translations = {
     
     // BookDetail
     viewWebshop: "View in webshop",
+    viewDetailPage: "Go to the detail page on the website",
     availability: "Availability",
     format: "Format",
     language: "Language",
