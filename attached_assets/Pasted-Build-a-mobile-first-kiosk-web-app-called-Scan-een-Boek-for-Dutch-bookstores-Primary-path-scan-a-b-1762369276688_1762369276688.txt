@@ -1,0 +1,20 @@
+Build a mobile-first kiosk web app called Scan-een-Boek for Dutch bookstores. Primary path: scan a book’s barcode to show the price instantly (≤2s). Secondary path: let users search by title/author when no barcode is available. The app reduces price-sticker workload and enables in-store self-service.
+Data & integration
+•	Use the attached CSV books_database.csv imported into PostgreSQL (ISBN/EAN = primary key). Include columns such as: isbn, ean, title, author, format, release_date, price, stock_on_hand, store_location, cover_url, boekpagina_url. (If a column is missing, infer from title/author where possible.) 
+•	Price & availability are taken from this DB (it mirrors POS/Libris sources for the prototype). 
+•	Prepare extension hooks for: Hebban widget (ratings/reviews) for a next iteration; keep tab placeholders in the UI.
+
+Core features
+1.	Scan (primary):
+o	Support USB barcode scanners (keyboard-wedge input) and camera scanning (e.g., via a “Scan” button that opens the camera; treat as optional if hardware scanner is present).
+o	On scan, look up by EAN/ISBN and show the Result Card with price prominently, title, author, cover, stock badge (green if stock_on_hand > 0, red otherwise) If available, shows the store location and a link to the product page in the webshop of the store or on Libris.nl (Boekpagina_URL)
+o	Auto-return to idle after 6–8s of inactivity. Target: ≤2s from scan to price. 
+2.	Search (secondary):
+o	A Google-like search bar (“Zoek op titel of auteur”) under/next to the scan area.
+o	Fuzzy search with typeahead; pick an edition → show the same Result Card as scan. Visually secondary to scanning.
+3.	Multiple editions: if several matches share title/author, show an Edition Picker (binding, year, price). 
+4.	Error & empty states:
+o	Unknown/invalid barcode → “Niet gevonden” + shortcut to Try search.
+o	Network/DB error → clear retry message; return to idle if inactive. 
+5.	Telemetry (console/local): log scan_success, scan_fail_reason, query_success, query_no_result, avg_lookup_ms, top_isbns, top_queries. 
+
