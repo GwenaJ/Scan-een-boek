@@ -1,0 +1,1 @@
+- [Production DB connection & seeding](production-db-and-seeding.md) — prod must read DB URL from /tmp/replitdb (not DATABASE_URL→helium); catalog self-seeds on boot under an advisory lock.
